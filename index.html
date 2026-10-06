@@ -184,7 +184,6 @@
         }
 
         .req { color: #CC0000; }
-        .kep-icon { display: inline-block; font-size: 15px; line-height: 1; }
 
         .fg input, .fg select, .fg textarea {
             width: 100%; padding: 11px 14px;
@@ -383,8 +382,23 @@
         .conn-status.loading .conn-dot { background: #FFD700; animation: pulse 0.8s infinite; }
 
         /* MODAL */
-        .modal-ov { display: none; position: fixed; inset: 0; background: rgba(0,10,40,0.65); z-index: 9999; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
-        .modal-ov.show { display: flex; animation: fadeIn 0.3s ease; }
+        .modal-ov {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0,10,40,0.65);
+    z-index: 999999 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+}
+        .modal-ov.show { display: flex !important; animation: fadeIn 0.3s ease; }
 
         .modal-box { background: white; border-radius: 22px; padding: 35px; max-width: 450px; width: 100%; text-align: center; animation: bounceIn 0.4s ease; max-height: 90vh; overflow-y: auto; }
         .modal-box.left { text-align: left; max-width: 520px; }
@@ -431,6 +445,11 @@
             .header-right { display: none; }
         }
     </style>
+
+<style id="browser-icon-fix">
+.compat-icon{display:inline-block;width:1.15em;height:1.15em;vertical-align:-0.2em;line-height:1;object-fit:contain;}
+.compat-icon img{display:block;width:100%;height:100%;object-fit:contain;}
+</style>
 </head>
 <body>
 
@@ -516,18 +535,18 @@
                         <input type="text" id="fInstansi" placeholder="Nama instansi atau asal daerah">
                     </div>
                     <div class="fg">
-                        <label><span class="kep-icon" aria-hidden="true">📋</span> Keperluan <span class="req">*</span></label>
+                        <label>📋 Keperluan <span class="req">*</span></label>
                         <select id="fKep">
                             <option value="">-- Pilih Keperluan --</option>
-                            <option value="Bertemu Kepala Sekolah">Bertemu Kepala Sekolah</option>
-                            <option value="Bertemu Guru/Wali Kelas">Bertemu Guru / Wali Kelas</option>
-                            <option value="Urusan Administrasi">Urusan Administrasi</option>
-                            <option value="Pendaftaran Siswa Baru">Pendaftaran Siswa Baru</option>
-                            <option value="Pengambilan Dokumen">Pengambilan Dokumen</option>
-                            <option value="Rapat / Pertemuan">Rapat / Pertemuan</option>
-                            <option value="Kunjungan Industri">Kunjungan Industri / PKL</option>
-                            <option value="Survei / Penelitian">Survei / Penelitian</option>
-                            <option value="Lain-lain">Lain-lain</option>
+                            <option value="Bertemu Kepala Sekolah">🏛️ Bertemu Kepala Sekolah</option>
+                            <option value="Bertemu Guru/Wali Kelas">👨‍🏫 Bertemu Guru / Wali Kelas</option>
+                            <option value="Urusan Administrasi">📄 Urusan Administrasi</option>
+                            <option value="Pendaftaran Siswa Baru">✏️ Pendaftaran Siswa Baru</option>
+                            <option value="Pengambilan Dokumen">📁 Pengambilan Dokumen</option>
+                            <option value="Rapat / Pertemuan">🤝 Rapat / Pertemuan</option>
+                            <option value="Kunjungan Industri">🏭 Kunjungan Industri / PKL</option>
+                            <option value="Survei / Penelitian">🔍 Survei / Penelitian</option>
+                            <option value="Lain-lain">📌 Lain-lain</option>
                         </select>
                         <div class="vmsg" id="mKep"></div>
                     </div>
@@ -1492,6 +1511,107 @@ updateProg();
 // Mulai koneksi Firebase & real-time listener
 startRealtime();
 
+</script>
+
+<script id="browser-icon-fix-script">
+(function(){
+    var icons = {
+'👨':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f468.svg",
+'✉':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2709.svg",
+'🏢':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f3e2.svg",
+'🔍':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f50d.svg",
+'⚠':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/26a0.svg",
+'⏳':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/23f3.svg",
+'📅':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4c5.svg",
+'👍':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f44d.svg",
+'📁':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4c1.svg",
+'✏':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/270f.svg",
+'🙋':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f64b.svg",
+'📭':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4ed.svg",
+'❌':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/274c.svg",
+'📱':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4f1.svg",
+'📌':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4cc.svg",
+'📊':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4ca.svg",
+'🎉':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f389.svg",
+'👁':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f441.svg",
+'📍':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4cd.svg",
+'☁':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2601.svg",
+'🤝':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f91d.svg",
+'📨':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4e8.svg",
+'✅':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2705.svg",
+'🗓':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f5d3.svg",
+'⚙':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2699.svg",
+'🗑':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f5d1.svg",
+'📖':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4d6.svg",
+'✓':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2713.svg",
+'🕐':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f550.svg",
+'📝':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4dd.svg",
+'✕':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2715.svg",
+'🏭':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f3ed.svg",
+'📄':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4c4.svg",
+'🏛':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f3db.svg",
+'🏫':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f3eb.svg",
+'📞':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4de.svg",
+'👤':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f464.svg",
+'📋':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4cb.svg",
+'👥':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f465.svg",
+'✍':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/270d.svg"
+    };
+    function makeIcon(ch){
+        var span=document.createElement('span');
+        span.className='compat-icon';
+        var img=document.createElement('img');
+        img.src=icons[ch]; img.alt=''; img.setAttribute('aria-hidden','true');
+        span.appendChild(img); return span;
+    }
+    function processNode(node){
+        if(!node || node.nodeType!==3 || !node.nodeValue) return;
+        var text=node.nodeValue, found=false, frag=document.createDocumentFragment(), i=0, j, ch;
+        for(j=0;j<text.length;j++){
+            ch=text.charAt(j);
+            /* Handle surrogate-pair emoji by testing known keys at this position. */
+            var hit=null;
+            for(var key in icons){ if(text.substr(j,key.length)===key){ hit=key; break; } }
+            if(hit){
+                found=true;
+                if(j>i) frag.appendChild(document.createTextNode(text.substring(i,j)));
+                frag.appendChild(makeIcon(hit));
+                j += hit.length-1; i=j+1;
+            }
+        }
+        if(found){
+            if(i<text.length) frag.appendChild(document.createTextNode(text.substring(i)));
+            if(node.parentNode) node.parentNode.replaceChild(frag,node);
+        }
+    }
+    function scan(root){
+        if(!root) return;
+        var nodes=root.getElementsByTagName ? root.getElementsByTagName('*') : [];
+        for(var i=0;i<nodes.length;i++){
+            var tag=nodes[i].tagName;
+            if(tag==='SCRIPT'||tag==='STYLE'||tag==='TEXTAREA'||tag==='INPUT') continue;
+            for(var c=0;c<nodes[i].childNodes.length;c++){
+                if(nodes[i].childNodes[c].nodeType===3) processNode(nodes[i].childNodes[c]);
+            }
+        }
+        if(root.nodeType===3) processNode(root);
+    }
+    function start(){
+        scan(document.body);
+        if(window.MutationObserver){
+            var obs=new MutationObserver(function(list){
+                for(var i=0;i<list.length;i++){
+                    var m=list[i];
+                    if(m.type==='childList'){
+                        for(var j=0;j<m.addedNodes.length;j++) scan(m.addedNodes[j]);
+                    } else if(m.type==='characterData') processNode(m.target);
+                }
+            });
+            obs.observe(document.body,{childList:true,subtree:true,characterData:true});
+        }
+    }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start); else start();
+})();
 </script>
 </body>
 </html>
