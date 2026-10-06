@@ -1,431 +1,388 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#003087">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>Buku Tamu Digital - SMKN 1 SUBANG</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Tamu Digital - SMKN 1 SUBANG</title>
 
-<!-- =========================
-     LIBRARY
-========================= -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-<style>
-/* =========================
-   RESET
-========================= */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html {
-    width: 100%;
-    min-height: 100%;
-    overflow-x: hidden;
-}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #001f5e 0%, #003087 60%, #004bb5 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-body {
-    font-family: Arial, Helvetica, sans-serif;
-    background: #f4f7fb;
-    color: #1d2939;
-    min-height: 100vh;
-    overflow-x: hidden;
-}
+        .tabs-wrapper { max-width: 960px; margin: 0 auto; }
 
-/* =========================
-   HEADER
-========================= */
-.header {
-    background: linear-gradient(135deg, #003087, #0056b3);
-    color: white;
-    padding: 22px 30px;
-    box-shadow: 0 4px 15px rgba(0,0,0,.15);
-}
+        .tab-buttons {
+            display: flex; gap: 5px;
+            justify-content: center; margin-bottom: 0;
+        }
 
-.header-inner {
-    max-width: 1200px;
-    margin: auto;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
+        .tab-btn {
+            padding: 12px 28px; border: none;
+            border-radius: 14px 14px 0 0;
+            font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: all 0.3s;
+            font-family: inherit;
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.7);
+        }
 
-.logo {
-    width: 80px;
-    height: 80px;
-    object-fit: contain;
-    background: white;
-    border-radius: 14px;
-    padding: 5px;
-}
+        .tab-btn.active { background: white; color: #003087; }
+        .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.25); color: white; }
 
-.header-text h1 {
-    font-size: 25px;
-    margin-bottom: 5px;
-}
+        .tab-badge {
+            background: #FFD700; color: #003087;
+            border-radius: 50%; width: 20px; height: 20px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 800;
+        }
 
-.header-text p {
-    font-size: 14px;
-    opacity: .9;
-}
+        .tab-content {
+            display: none; background: white;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+            overflow: hidden;
+        }
 
-.header-contact {
-    margin-left: auto;
-    text-align: right;
-    font-size: 13px;
-    line-height: 1.7;
-}
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
 
-/* =========================
-   CONTAINER
-========================= */
-.container {
-    width: calc(100% - 40px);
-    max-width: 1200px;
-    margin: 25px auto 40px;
-}
+        /* SCHOOL HEADER */
+        .school-header {
+            background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+            padding: 22px 30px;
+            display: flex; align-items: center; gap: 18px;
+            position: relative; overflow: hidden;
+        }
 
-/* =========================
-   TAB
-========================= */
-.tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
-    background: white;
-    padding: 7px;
-    border-radius: 14px;
-    box-shadow: 0 3px 12px rgba(0,0,0,.08);
-}
+        .school-header::before {
+            content: ''; position: absolute;
+            top: -40%; right: -5%;
+            width: 220px; height: 220px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%; pointer-events: none;
+        }
 
-.tab-btn {
-    flex: 1;
-    border: none;
-    background: transparent;
-    color: #667085;
-    font-size: 15px;
-    font-weight: bold;
-    padding: 14px 15px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: .2s;
-    min-height: 48px;
-}
+        .logo-wrap {
+            width: 82px; height: 82px;
+            background: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+            padding: 5px; border: 3px solid #FFD700;
+            position: relative; z-index: 1;
+        }
 
-.tab-btn.active {
-    background: #003087;
-    color: white;
-}
+        .logo-wrap img {
+            width: 100%; height: 100%;
+            object-fit: contain; border-radius: 50%;
+        }
 
-.tab-btn:hover {
-    background: #eaf0ff;
-    color: #003087;
-}
+        .school-info { position: relative; z-index: 1; flex: 1; }
 
-.tab-btn.active:hover {
-    background: #003087;
-    color: white;
-}
+        .school-info h1 {
+            color: #FFD700; font-size: 20px; font-weight: 800;
+            letter-spacing: 1.5px; text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+        }
 
-/* =========================
-   CARD
-========================= */
-.card {
-    background: white;
-    border-radius: 16px;
-    padding: 25px;
-    box-shadow: 0 4px 16px rgba(0,0,0,.08);
-}
+        .school-info .tagline {
+            color: rgba(255,255,255,0.65); font-size: 11px;
+            font-style: italic; margin-top: 2px;
+        }
 
-.card-title {
-    font-size: 20px;
-    font-weight: bold;
-    color: #003087;
-    margin-bottom: 5px;
-}
+        .school-info .contact {
+            color: rgba(255,255,255,0.8); font-size: 11px;
+            margin-top: 5px; line-height: 1.7;
+        }
 
-.card-subtitle {
-    font-size: 13px;
-    color: #667085;
-    margin-bottom: 25px;
-}
+        .header-right {
+            margin-left: auto; text-align: right;
+            position: relative; z-index: 1; flex-shrink: 0;
+        }
 
-/* =========================
-   FORM
-========================= */
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-}
+        .dt-live { color: #FFD700; font-size: 11.5px; font-weight: 600; }
 
-.fg {
-    display: flex;
-    flex-direction: column;
-}
+        .vc-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #FFD700, #FFC200);
+            color: #003087; border-radius: 20px;
+            padding: 5px 14px; font-size: 12px; font-weight: 800;
+            margin-top: 8px;
+        }
 
-.fg.full {
-    grid-column: 1 / -1;
-}
+        /* LOADING OVERLAY */
+        .loading-ov {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,10,40,0.7);
+            z-index: 99999;
+            align-items: center; justify-content: center;
+            flex-direction: column; gap: 15px;
+            backdrop-filter: blur(4px);
+        }
 
-.fg label {
-    font-size: 14px;
-    font-weight: bold;
-    color: #344054;
-    margin-bottom: 8px;
-}
+        .loading-ov.show { display: flex; }
 
-.required {
-    color: #d92d20;
-}
+        .spinner {
+            width: 50px; height: 50px;
+            border: 5px solid rgba(255,255,255,0.2);
+            border-top-color: #FFD700;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
 
-.fg input,
-.fg select,
-.fg textarea,
-.search-inp,
-.flt-sel {
-    width: 100%;
-    border: 1px solid #d0d5dd;
-    background: #fff;
-    color: #101828;
-    border-radius: 10px;
-    padding: 13px 14px;
-    font-size: 15px;
-    outline: none;
-    transition: .2s;
+        .loading-ov p { color: white; font-size: 14px; font-weight: 600; }
 
-    /* TOUCHSCREEN */
-    touch-action: manipulation;
-    -webkit-user-select: text;
-    user-select: text;
-}
+        /* FORM */
+        .form-area { padding: 28px 30px; }
 
-.fg input,
-.fg select {
-    height: 50px;
-}
+        .sec-title {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 5px;
+        }
 
-.fg textarea {
-    min-height: 110px;
-    resize: vertical;
-}
+        .sec-title h2 { color: #003087; font-size: 18px; white-space: nowrap; }
 
-.fg input:focus,
-.fg select:focus,
-.fg textarea:focus,
-.search-inp:focus,
-.flt-sel:focus {
-    border-color: #003087 !important;
-    background: #fff !important;
-    box-shadow:
-        0 0 0 3px rgba(0,48,135,.12),
-        0 4px 12px rgba(0,48,135,.08);
-}
+        .title-line {
+            flex: 1; height: 2px;
+            background: linear-gradient(to right, #003087, rgba(0,48,135,0.1));
+            border-radius: 2px;
+        }
 
-/* =========================
-   SIGNATURE
-========================= */
-.sig-box {
-    border: 1px dashed #98a2b3;
-    border-radius: 12px;
-    overflow: hidden;
-    background: #fafafa;
-}
+        .form-desc { font-size: 12px; color: #888; margin-bottom: 16px; }
 
-#sigCanvas {
-    width: 100%;
-    height: 150px;
-    display: block;
-    background: white;
+        .prog-wrap {
+            background: #eee; border-radius: 10px;
+            height: 7px; overflow: hidden; margin-bottom: 4px;
+        }
 
-    /* JANGAN DIUBAH KE manipulation */
-    touch-action: none;
-}
+        .prog-fill {
+            height: 100%; border-radius: 10px;
+            background: linear-gradient(to right, #1d4ed8, #3b82f6, #FFD700);
+            width: 0%; transition: width 0.4s ease;
+        }
 
-.sig-actions {
-    padding: 8px;
-    display: flex;
-    justify-content: flex-end;
-    background: #f8fafc;
-    border-top: 1px solid #eaecf0;
-}
+        .prog-text { text-align: right; font-size: 11px; color: #aaa; margin-bottom: 16px; }
 
-.btn-clr-sig {
-    border: none;
-    background: #fff;
-    border: 1px solid #d0d5dd;
-    color: #344054;
-    padding: 9px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    min-height: 42px;
-}
+        .frow { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .fg { margin-bottom: 15px; }
+        .fg.full { grid-column: 1 / -1; }
 
-/* =========================
-   BUTTON
-========================= */
-.btn-submit {
-    margin-top: 10px;
-    width: 100%;
-    border: none;
-    background: linear-gradient(135deg, #003087, #0056b3);
-    color: white;
-    padding: 16px;
-    min-height: 58px;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 5px 15px rgba(0,48,135,.2);
-}
+        .fg label {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 12.5px; font-weight: 600; color: #333; margin-bottom: 6px;
+        }
 
-.btn-submit:hover {
-    opacity: .95;
-}
+        .req { color: #CC0000; }
 
-.btn-submit:active {
-    transform: scale(.99);
-}
+        .fg input, .fg select, .fg textarea {
+            width: 100%; padding: 11px 14px;
+            border: 2px solid #e0e0e0; border-radius: 10px;
+            font-size: 13.5px; color: #333;
+            transition: all 0.3s; outline: none;
+            background: #fafafa; font-family: inherit;
+        }
 
-/* =========================
-   HISTORY
-========================= */
-.stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
-    margin-bottom: 20px;
-}
+        .fg input:focus, .fg select:focus, .fg textarea:focus {
+            border-color: #003087; background: white;
+            box-shadow: 0 0 0 3px rgba(0,48,135,0.1);
+        }
 
-.stat {
-    background: white;
-    padding: 18px;
-    border-radius: 14px;
-    box-shadow: 0 3px 12px rgba(0,0,0,.07);
-}
+        .fg input.ok   { border-color: #43a047; background: #f6fff6; }
+        .fg input.err  { border-color: #CC0000; background: #fff5f5; }
+        .fg select.ok  { border-color: #43a047; background: #f6fff6; }
+        .fg select.err { border-color: #CC0000; }
+        .fg textarea   { resize: none; height: 78px; }
 
-.stat-label {
-    font-size: 12px;
-    color: #667085;
-    margin-bottom: 5px;
-}
+        .fg select {
+            cursor: pointer; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23003087' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-color: #fafafa;
+        }
 
-.stat-value {
-    font-size: 25px;
-    font-weight: bold;
-    color: #003087;
-}
+        .vmsg { font-size: 11px; margin-top: 4px; padding-left: 3px; min-height: 14px; }
+        .vmsg.err { color: #CC0000; }
+        .vmsg.ok  { color: #43a047; }
 
-.filter-row {
-    display: grid;
-    grid-template-columns: 1fr 180px 180px;
-    gap: 12px;
-    margin-bottom: 18px;
-}
+        /* SIGNATURE */
+        .sig-lbl {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 12.5px; font-weight: 600; color: #333; margin-bottom: 6px;
+        }
 
-/* =========================
-   TABLE
-========================= */
-.table-wrap {
-    width: 100%;
-    overflow-x: auto;
-    border: 1px solid #eaecf0;
-    border-radius: 12px;
-}
+        .sig-box {
+            border: 2px dashed #90caf9; border-radius: 12px;
+            background: linear-gradient(145deg, #f8fbff, #eef5ff);
+            position: relative; transition: all 0.3s; overflow: hidden;
+        }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 850px;
-}
+        .sig-box:hover { border-color: #003087; }
+        .sig-box.signed { border-color: #43a047; border-style: solid; background: linear-gradient(145deg, #f6fff6, #ecfcec); }
 
-thead {
-    background: #003087;
-    color: white;
-}
+        #sigCanvas {
+            display: block; width: 100%; height: 130px;
+            cursor: crosshair; touch-action: none; border-radius: 10px;
+        }
 
-th,
-td {
-    padding: 12px 14px;
-    text-align: left;
-    border-bottom: 1px solid #eaecf0;
-    font-size: 13px;
-}
+        .sig-hint {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center; pointer-events: none;
+            transition: opacity 0.4s; width: 100%;
+        }
 
-tbody tr:hover {
-    background: #f8faff;
-}
+        .sig-hint .hi { font-size: 28px; opacity: 0.2; }
+        .sig-hint p   { color: #bbb; font-size: 12px; margin-top: 5px; }
 
-.empty {
-    text-align: center;
-    padding: 35px;
-    color: #667085;
-}
+        .sig-foot { display: flex; gap: 10px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
 
-/* =========================
-   TABLE BUTTON
-========================= */
-.btn-small {
-    border: none;
-    border-radius: 7px;
-    padding: 7px 10px;
-    cursor: pointer;
-    font-size: 12px;
-}
+        .btn-clr-sig {
+            padding: 7px 16px;
+            background: #fff3e0; border: 1.5px solid #ffb74d;
+            border-radius: 8px; color: #e65100;
+            font-size: 12px; cursor: pointer;
+            font-family: inherit; transition: all 0.2s;
+            display: flex; align-items: center; gap: 5px;
+        }
 
-.btn-detail {
-    background: #eaf0ff;
-    color: #003087;
-}
+        .btn-clr-sig:hover { background: #ffe0b2; }
 
-.btn-delete {
-    background: #fee4e2;
-    color: #b42318;
-}
+        .sig-ok-tag {
+            font-size: 12px; color: #43a047;
+            display: none; align-items: center; gap: 5px;
+            background: #f1fdf1; padding: 6px 12px;
+            border-radius: 8px; border: 1px solid #a5d6a7;
+        }
 
-.history-actions {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-}
+        .sig-ok-tag.show { display: flex; }
 
-.btn-action {
-    border: none;
-    border-radius: 9px;
-    padding: 10px 14px;
-    cursor: pointer;
-    font-weight: bold;
-    min-height: 42px;
-}
+        .btn-submit {
+            width: 100%; padding: 14px;
+            background: linear-gradient(135deg, #1d4ed8, #2563eb, #3b82f6);
+            color: white; border: 2px solid transparent;
+            border-radius: 12px; font-size: 15px; font-weight: 700;
+            cursor: pointer; transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center;
+            gap: 10px; font-family: inherit; margin-top: 8px;
+        }
 
-.btn-pdf {
-    background: #003087;
-    color: white;
-}
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(29,78,216,0.45); border-color: #FFD700; }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-.btn-csv {
-    background: #12b76a;
-    color: white;
-}
+        /* RIWAYAT */
+        .riwayat-area { padding: 25px 30px; }
 
-.btn-danger {
-    background: #d92d20;
-    color: white;
-}
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 12px; margin-bottom: 22px;
+        }
 
-/* =========================
-   MODAL
-========================= */
-.modal-ov {
+        .stat-card {
+            background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+            border-radius: 14px; padding: 16px 12px;
+            text-align: center; color: white;
+            position: relative; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover { transform: translateY(-3px); }
+        .stat-card::before { content: ''; position: absolute; top: -20px; right: -20px; width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 50%; }
+        .stat-icon { font-size: 22px; margin-bottom: 6px; }
+        .stat-num  { font-size: 28px; font-weight: 800; color: #FFD700; line-height: 1; }
+        .stat-lbl  { font-size: 10.5px; opacity: 0.75; margin-top: 4px; }
+
+        .toolbar { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; align-items: center; }
+
+        .search-inp {
+            flex: 1; min-width: 180px; padding: 10px 15px;
+            border: 2px solid #e0e0e0; border-radius: 10px;
+            font-size: 13px; font-family: inherit;
+            outline: none; transition: all 0.3s; background: #fafafa;
+        }
+
+        .search-inp:focus { border-color: #003087; background: white; box-shadow: 0 0 0 3px rgba(0,48,135,0.1); }
+
+        .flt-sel {
+            padding: 10px 14px; border: 2px solid #e0e0e0;
+            border-radius: 10px; font-size: 12.5px;
+            font-family: inherit; outline: none;
+            cursor: pointer; background: #fafafa; color: #444; transition: all 0.3s;
+        }
+
+        .flt-sel:focus { border-color: #003087; background: white; }
+
+        .btn-pdf  { padding: 10px 18px; background: linear-gradient(135deg, #b71c1c, #CC0000); color: white; border: none; border-radius: 10px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.3s; white-space: nowrap; }
+        .btn-pdf:hover  { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(204,0,0,0.4); }
+
+        .btn-csv  { padding: 10px 18px; background: linear-gradient(135deg, #1b5e20, #2e7d32); color: white; border: none; border-radius: 10px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.3s; white-space: nowrap; }
+        .btn-csv:hover  { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46,125,50,0.4); }
+
+        .btn-del-all { padding: 10px 18px; background: linear-gradient(135deg, #37474f, #546e7a); color: white; border: none; border-radius: 10px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.3s; white-space: nowrap; }
+        .btn-del-all:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(84,110,122,0.4); }
+
+        .tbl-wrap { overflow-x: auto; border-radius: 14px; border: 1.5px solid #e8eef7; box-shadow: 0 2px 15px rgba(0,48,135,0.07); }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 680px; }
+        thead { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+        thead th { padding: 13px 15px; text-align: left; font-weight: 600; color: white; white-space: nowrap; font-size: 12.5px; }
+        tbody tr { border-bottom: 1px solid #f0f4ff; transition: background 0.2s; }
+        tbody tr:hover { background: #f5f8ff; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody td { padding: 11px 15px; color: #444; vertical-align: middle; }
+
+        .no-badge { background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: #FFD700; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; margin: 0 auto; }
+        .kep-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: #e8eeff; color: #003087; border: 1px solid #c5d0f0; white-space: nowrap; }
+
+        .no-data { text-align: center; padding: 60px 20px; color: #bbb; }
+        .nd-icon { font-size: 55px; margin-bottom: 12px; }
+        .no-data p { font-size: 14px; font-weight: 600; }
+        .no-data small { font-size: 12px; color: #ccc; }
+
+        .act-btns { display: flex; gap: 5px; justify-content: center; }
+
+        .btn-dtl { background: #e8f0fe; border: 1px solid #adc6ff; border-radius: 7px; padding: 5px 11px; color: #1a56cc; font-size: 11.5px; cursor: pointer; transition: all 0.2s; font-family: inherit; font-weight: 500; }
+        .btn-dtl:hover { background: #c8d9ff; transform: translateY(-1px); }
+
+        .btn-del { background: #ffebee; border: 1px solid #ffcdd2; border-radius: 7px; padding: 5px 10px; color: #c62828; font-size: 11.5px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .btn-del:hover { background: #ffcdd2; transform: translateY(-1px); }
+
+        .tbl-info { margin-top: 10px; font-size: 12px; color: #888; text-align: right; }
+
+        /* CONNECTION STATUS */
+        .conn-status {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 11px; padding: 5px 12px;
+            border-radius: 20px; font-weight: 600;
+            margin-top: 6px; justify-content: flex-end;
+        }
+
+        .conn-status.online  { background: rgba(67,160,71,0.15); color: #2e7d32; border: 1px solid #a5d6a7; }
+        .conn-status.offline { background: rgba(204,0,0,0.1); color: #b71c1c; border: 1px solid #ef9a9a; }
+        .conn-status.loading { background: rgba(255,215,0,0.15); color: #e65100; border: 1px solid #FFD700; }
+
+        .conn-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+        }
+
+        .conn-status.online  .conn-dot { background: #43a047; animation: pulse 2s infinite; }
+        .conn-status.offline .conn-dot { background: #CC0000; }
+        .conn-status.loading .conn-dot { background: #FFD700; animation: pulse 0.8s infinite; }
+
+        /* MODAL */
+        .modal-ov {
     display: none;
     position: fixed !important;
     top: 0 !important;
@@ -434,2987 +391,1275 @@ tbody tr:hover {
     left: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
-    background: rgba(0,10,40,.65);
+    background: rgba(0,10,40,0.65);
     z-index: 999999 !important;
     align-items: center !important;
     justify-content: center !important;
     padding: 20px;
     backdrop-filter: blur(4px);
 }
+        .modal-ov.show { display: flex !important; animation: fadeIn 0.3s ease; }
 
-.modal-ov.show {
-    display: flex !important;
-    animation: fadeIn .3s ease;
-}
+        .modal-box { background: white; border-radius: 22px; padding: 35px; max-width: 450px; width: 100%; text-align: center; animation: bounceIn 0.4s ease; max-height: 90vh; overflow-y: auto; }
+        .modal-box.left { text-align: left; max-width: 520px; }
+        .modal-box.left h3 { text-align: center; }
 
-.modal {
-    width: 100%;
-    max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
-    background: white;
-    border-radius: 18px;
-    padding: 25px;
-    box-shadow: 0 20px 60px rgba(0,0,0,.3);
-    animation: scaleIn .25s ease;
-}
+        .modal-ico { width: 72px; height: 72px; background: linear-gradient(135deg, #43a047, #66bb6a); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 34px; box-shadow: 0 5px 20px rgba(67,160,71,0.4); }
+        .modal-box h3 { color: #003087; font-size: 20px; margin-bottom: 8px; }
+        .modal-box > p { color: #666; font-size: 13px; line-height: 1.6; margin-bottom: 5px; }
 
-.modal-icon {
-    width: 65px;
-    height: 65px;
-    border-radius: 50%;
-    background: #dcfae6;
-    color: #12b76a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 15px;
-    font-size: 30px;
-}
+        .m-summary { background: linear-gradient(135deg, #f5f7ff, #eef1ff); border-radius: 12px; padding: 15px; margin: 14px 0; text-align: left; border-left: 4px solid #003087; }
 
-.modal h3 {
-    text-align: center;
-    color: #003087;
-    margin-bottom: 10px;
-}
+        .s-row { display: flex; gap: 10px; margin-bottom: 8px; font-size: 13px; align-items: flex-start; }
+        .s-row:last-child { margin-bottom: 0; }
+        .s-lbl { color: #888; min-width: 82px; font-size: 11.5px; padding-top: 1px; flex-shrink: 0; }
+        .s-val { color: #222; font-weight: 600; font-size: 13px; flex: 1; word-break: break-word; }
 
-.modal p {
-    text-align: center;
-    color: #667085;
-    font-size: 14px;
-    line-height: 1.6;
-}
+        .sig-prev-wrap { margin: 12px 0; padding: 10px; background: #f9f9f9; border-radius: 10px; border: 1px solid #eee; }
+        .sig-prev-wrap p { font-size: 11px; color: #aaa; margin-bottom: 7px; }
+        .sig-prev-wrap img { border: 1px solid #e0e0e0; border-radius: 8px; max-height: 80px; max-width: 100%; }
 
-.modal-detail {
-    margin-top: 15px;
-}
+        .btn-ok { margin-top: 15px; padding: 12px 40px; background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: white; border: 2px solid transparent; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.3s; }
+        .btn-ok:hover { border-color: #FFD700; transform: translateY(-2px); }
 
-.detail-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    padding: 10px 0;
-    border-bottom: 1px solid #eaecf0;
-    font-size: 13px;
-}
+        /* TOAST */
+        .toast { position: fixed; bottom: 30px; right: 30px; background: #2563eb; color: white; padding: 13px 22px; border-radius: 12px; font-size: 13px; font-weight: 600; box-shadow: 0 5px 20px rgba(37,99,235,0.45); border-left: 4px solid #FFD700; z-index: 99999; transform: translateX(140%); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; align-items: center; gap: 10px; max-width: 320px; }
+        .toast.show { transform: translateX(0); }
 
-.detail-label {
-    color: #667085;
-}
+        @keyframes fadeIn   { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes bounceIn { 0% { transform: scale(0.6); opacity: 0; } 65% { transform: scale(1.06); } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes spin     { to { transform: rotate(360deg); } }
+        @keyframes pulse    { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-.detail-value {
-    font-weight: bold;
-    text-align: right;
-}
+        @media (max-width: 680px) {
+            body { padding: 10px; }
+            .frow { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .school-header { padding: 15px; gap: 12px; }
+            .school-info h1 { font-size: 14px; }
+            .logo-wrap { width: 58px; height: 58px; }
+            .form-area, .riwayat-area { padding: 18px 15px; }
+            .toolbar { flex-direction: column; }
+            .search-inp, .flt-sel, .btn-pdf, .btn-csv, .btn-del-all { width: 100%; justify-content: center; }
+            .tab-btn { padding: 10px 14px; font-size: 12px; }
+            .header-right { display: none; }
+        }
+    </style>
 
-.btn-ok {
-    margin-top: 20px;
-    width: 100%;
-    min-height: 48px;
-    border: none;
-    border-radius: 10px;
-    background: #003087;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-}
+<style id="browser-icon-fix">
+.compat-icon{display:inline-block;width:1.15em;height:1.15em;vertical-align:-0.2em;line-height:1;object-fit:contain;}
+.compat-icon img{display:block;width:100%;height:100%;object-fit:contain;}
+    /* TOUCHSCREEN KEYBOARD FIX — tidak mengubah tampilan */
+    @media (pointer: coarse) {
+        input, select, textarea, button {
+            touch-action: manipulation;
+        }
 
-/* =========================
-   TOAST
-========================= */
-.toast {
-    position: fixed;
-    right: 20px;
-    bottom: 20px;
-    background: #101828;
-    color: white;
-    padding: 13px 18px;
-    border-radius: 10px;
-    box-shadow: 0 8px 30px rgba(0,0,0,.2);
-    opacity: 0;
-    transform: translateY(20px);
-    pointer-events: none;
-    transition: .25s;
-    z-index: 1000000;
-    font-size: 13px;
-}
-
-.toast.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* =========================
-   LOADING
-========================= */
-.loading {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(255,255,255,.7);
-    z-index: 999998;
-    align-items: center;
-    justify-content: center;
-}
-
-.loading.show {
-    display: flex;
-}
-
-.loading-box {
-    background: white;
-    padding: 25px 30px;
-    border-radius: 15px;
-    box-shadow: 0 10px 40px rgba(0,0,0,.15);
-    text-align: center;
-}
-
-.spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #e4e7ec;
-    border-top-color: #003087;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 12px;
-}
-
-.loading-box p {
-    font-size: 13px;
-    color: #475467;
-}
-
-/* =========================
-   ANIMATION
-========================= */
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
+        input, select, textarea {
+            scroll-margin-top: 24px;
+            scroll-margin-bottom: 140px;
+        }
     }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes scaleIn {
-    from {
-        opacity: 0;
-        transform: scale(.92);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-/* =========================
-   TOUCHSCREEN
-========================= */
-
-input,
-textarea,
-select,
-button {
-    -webkit-tap-highlight-color: transparent;
-}
-
-@media (pointer: coarse) {
-
-    .fg input,
-    .fg select,
-    .fg textarea {
-        min-height: 54px;
-        padding: 14px 16px;
-        font-size: 16px !important;
-        border-radius: 12px;
-    }
-
-    .fg textarea {
-        min-height: 110px;
-        height: 110px;
-        padding-top: 14px;
-    }
-
-    .fg label {
-        font-size: 14px;
-        margin-bottom: 8px;
-    }
-
-    .btn-submit {
-        min-height: 58px;
-        font-size: 16px;
-        border-radius: 13px;
-    }
-
-    .btn-clr-sig,
-    .btn-ok {
-        min-height: 48px;
-        font-size: 14px;
-    }
-
-    #sigCanvas {
-        height: 150px;
-    }
-
-    .sig-box {
-        min-height: 150px;
-    }
-
-    .tab-btn {
-        min-height: 50px;
-        font-size: 14px;
-    }
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
-@media (max-width: 900px) {
-
-    .header-contact {
-        display: none;
-    }
-
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .fg.full {
-        grid-column: auto;
-    }
-
-    .stats {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .filter-row {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 680px) {
-
-    .header {
-        padding: 16px;
-    }
-
-    .header-inner {
-        gap: 12px;
-    }
-
-    .logo {
-        width: 60px;
-        height: 60px;
-    }
-
-    .header-text h1 {
-        font-size: 18px;
-    }
-
-    .header-text p {
-        font-size: 11px;
-    }
-
-    .container {
-        width: calc(100% - 20px);
-        margin-top: 12px;
-    }
-
-    .card {
-        padding: 17px;
-        border-radius: 13px;
-    }
-
-    .tabs {
-        border-radius: 11px;
-    }
-
-    .tab-btn {
-        font-size: 12px;
-        padding: 10px 6px;
-    }
-
-    .fg input,
-    .fg select,
-    .fg textarea {
-        font-size: 16px !important;
-        min-height: 52px;
-    }
-
-    .fg textarea {
-        min-height: 100px;
-        height: 100px;
-    }
-
-    .stats {
-        gap: 8px;
-    }
-
-    .stat {
-        padding: 13px;
-    }
-
-    .stat-value {
-        font-size: 21px;
-    }
-
-    .history-actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .btn-action {
-        width: 100%;
-    }
-}
 </style>
 </head>
-
 <body>
 
-<!-- =========================
-     HEADER
-========================= -->
-<header class="header">
-    <div class="header-inner">
+<!-- LOADING -->
+<div class="loading-ov" id="loadingOv">
+    <div class="spinner"></div>
+    <p id="loadingMsg">Menghubungkan ke database...</p>
+</div>
 
-        <img
-            src="logo.png"
-            alt="Logo SMKN 1 Subang"
-            class="logo"
-        >
+<!-- TOAST -->
+<div class="toast" id="toast">
+    <span id="toastIco">✅</span>
+    <span id="toastMsg">Berhasil!</span>
+</div>
 
-        <div class="header-text">
-            <h1>BUKU TAMU DIGITAL</h1>
-            <p>SMK NEGERI 1 SUBANG</p>
-        </div>
-
-        <div class="header-contact">
-            <div>📍 Subang, Jawa Barat</div>
-            <div>📞 SMKN 1 SUBANG</div>
-        </div>
-
-    </div>
-</header>
-
-
-<!-- =========================
-     MAIN
-========================= -->
-<main class="container">
-
-    <!-- TABS -->
-    <div class="tabs">
-
-        <button
-            type="button"
-            class="tab-btn active"
-            id="tabIsi"
-            onclick="switchTab('isi')"
-        >
+<div class="tabs-wrapper">
+    <div class="tab-buttons">
+        <button class="tab-btn active" onclick="switchTab('form')" id="btnForm">
             📝 Isi Buku Tamu
         </button>
-
-        <button
-            type="button"
-            class="tab-btn"
-            id="tabRiwayat"
-            onclick="switchTab('riwayat')"
-        >
+        <button class="tab-btn" onclick="switchTab('riwayat')" id="btnRiwayat">
             📋 Riwayat Tamu
+            <span class="tab-badge" id="tabBadge">0</span>
         </button>
-
     </div>
 
-
-    <!-- =========================
-         TAB ISI
-    ========================= -->
-    <section id="pageIsi">
-
-        <div class="card">
-
-            <div class="card-title">
-                Data Pengunjung
+    <!-- TAB FORM -->
+    <div class="tab-content active" id="pageForm">
+        <div class="school-header">
+            <div class="logo-wrap">
+                <!-- GANTI src="logo.png" dengan path logo Anda -->
+                <img src="logo.png" alt="Logo SMKN 1 Subang"
+                     onerror="this.outerHTML='<span style=&quot;font-size:36px&quot;>🏫</span>'">
             </div>
-
-            <div class="card-subtitle">
-                Silakan lengkapi data berikut sebelum berkunjung.
+            <div class="school-info">
+                <h1>SMK NEGERI 1 SUBANG</h1>
+                <div class="tagline">Cerdas, Terampil, dan Berkarakter</div>
+                <div class="contact">
+                    📍 Jl. Arief Rahman Hakim No.40, Subang, Jawa Barat 41211<br>
+                    📞 (0260) 411295 &nbsp;|&nbsp; ✉️ smkn1subang@gmail.com
+                </div>
             </div>
+            <div class="header-right">
+                <div class="dt-live" id="dt1">--</div>
+                <div class="vc-badge" id="vcBadge">🙋 Tamu ke-1</div>
+                <div class="conn-status loading" id="connStatus">
+                    <div class="conn-dot"></div>
+                    <span id="connText">Menghubungkan...</span>
+                </div>
+            </div>
+        </div>
 
+        <div class="form-area">
+            <div class="sec-title">
+                <h2>📖 Buku Tamu Digital</h2>
+                <div class="title-line"></div>
+            </div>
+            <p class="form-desc">
+                Silakan isi data diri Anda dengan lengkap dan benar.
+                Kolom bertanda <span style="color:#CC0000;font-weight:700;">*</span> wajib diisi.
+            </p>
 
-            <form id="guestForm">
+            <div class="prog-wrap"><div class="prog-fill" id="progFill"></div></div>
+            <div class="prog-text" id="progText">Mulai isi form di bawah ini</div>
 
-                <div class="form-grid">
-
-                    <!-- NAMA -->
+            <form id="guestForm" novalidate autocomplete="off">
+                <div class="frow">
                     <div class="fg">
-
-                        <label for="fNama">
-                            Nama Lengkap <span class="required">*</span>
-                        </label>
-
-                        <input
-                            type="text"
-                            id="fNama"
-                            placeholder="Contoh: Budi Santoso"
-                            autocomplete="name"
-                            autocapitalize="words"
-                            enterkeyhint="next"
-                            required
-                        >
-
+                        <label>👤 Nama Lengkap <span class="req">*</span></label>
+                        <input type="text" id="fNama" placeholder="Contoh: Budi Santoso" inputmode="text" autocomplete="name" autocapitalize="words" enterkeyhint="next">
+                        <div class="vmsg" id="mNama"></div>
                     </div>
-
-
-                    <!-- HP -->
                     <div class="fg">
-
-                        <label for="fHp">
-                            Nomor HP / WhatsApp <span class="required">*</span>
-                        </label>
-
-                        <input
-                            type="tel"
-                            id="fHp"
-                            placeholder="Contoh: 08123456789"
-                            maxlength="15"
-                            inputmode="numeric"
-                            autocomplete="tel"
-                            enterkeyhint="next"
-                            required
-                        >
-
+                        <label>📱 Nomor HP / WA <span class="req">*</span></label>
+                        <input type="tel" id="fHp" placeholder="Contoh: 08123456789" maxlength="15" inputmode="numeric" autocomplete="tel" enterkeyhint="next">
+                        <div class="vmsg" id="mHp"></div>
                     </div>
+                </div>
 
-
-                    <!-- INSTANSI -->
+                <div class="frow">
                     <div class="fg">
-
-                        <label for="fInstansi">
-                            Instansi / Asal <span class="required">*</span>
-                        </label>
-
-                        <input
-                            type="text"
-                            id="fInstansi"
-                            placeholder="Nama instansi atau asal daerah"
-                            autocomplete="organization"
-                            enterkeyhint="next"
-                            required
-                        >
-
+                        <label>🏢 Instansi / Asal</label>
+                        <input type="text" id="fInstansi" placeholder="Nama instansi atau asal daerah" inputmode="text" autocomplete="organization" enterkeyhint="next">
                     </div>
-
-
-                    <!-- KEPERLUAN -->
                     <div class="fg">
-
-                        <label for="fKep">
-                            Keperluan <span class="required">*</span>
-                        </label>
-
-                        <select
-                            id="fKep"
-                            required
-                        >
-                            <option value="">
-                                -- Pilih Keperluan --
-                            </option>
-
-                            <option value="Silaturahmi">
-                                Silaturahmi
-                            </option>
-
-                            <option value="Dinas">
-                                Dinas
-                            </option>
-
-                            <option value="Kerjasama">
-                                Kerjasama
-                            </option>
-
-                            <option value="Kunjungan">
-                                Kunjungan
-                            </option>
-
-                            <option value="Pendaftaran">
-                                Pendaftaran
-                            </option>
-
-                            <option value="Informasi">
-                                Informasi
-                            </option>
-
-                            <option value="Lain-lain">
-                                Lain-lain
-                            </option>
-
+                        <label>📋 Keperluan <span class="req">*</span></label>
+                        <select id="fKep">
+                            <option value="">-- Pilih Keperluan --</option>
+                            <option value="Bertemu Kepala Sekolah">🏛️ Bertemu Kepala Sekolah</option>
+                            <option value="Bertemu Guru/Wali Kelas">👨‍🏫 Bertemu Guru / Wali Kelas</option>
+                            <option value="Urusan Administrasi">📄 Urusan Administrasi</option>
+                            <option value="Pendaftaran Siswa Baru">✏️ Pendaftaran Siswa Baru</option>
+                            <option value="Pengambilan Dokumen">📁 Pengambilan Dokumen</option>
+                            <option value="Rapat / Pertemuan">🤝 Rapat / Pertemuan</option>
+                            <option value="Kunjungan Industri">🏭 Kunjungan Industri / PKL</option>
+                            <option value="Survei / Penelitian">🔍 Survei / Penelitian</option>
+                            <option value="Lain-lain">📌 Lain-lain</option>
                         </select>
-
+                        <div class="vmsg" id="mKep"></div>
                     </div>
+                </div>
 
+                <div class="fg full" id="detailGrp" style="display:none;">
+                    <label>✏️ Keterangan Keperluan <span class="req">*</span></label>
+                    <textarea id="fDetail" placeholder="Jelaskan keperluan Anda..." inputmode="text" enterkeyhint="done"></textarea>
+                </div>
 
-                    <!-- DETAIL -->
-                    <div
-                        class="fg full"
-                        id="detailGrp"
-                        style="display:none;"
-                    >
-
-                        <label for="fDetail">
-                            Detail Keperluan
-                        </label>
-
-                        <textarea
-                            id="fDetail"
-                            placeholder="Jelaskan keperluan Anda..."
-                            enterkeyhint="done"
-                        ></textarea>
-
-                    </div>
-
-
-                    <!-- SIGNATURE -->
-                    <div class="fg full">
-
-                        <label>
-                            Tanda Tangan <span class="required">*</span>
-                        </label>
-
-                        <div class="sig-box">
-
-                            <canvas id="sigCanvas"></canvas>
-
-                            <div class="sig-actions">
-
-                                <button
-                                    type="button"
-                                    class="btn-clr-sig"
-                                    id="clearSig"
-                                >
-                                    Hapus Tanda Tangan
-                                </button>
-
-                            </div>
-
+                <div style="margin-bottom:18px;">
+                    <div class="sig-lbl">✍️ Tanda Tangan <span class="req">*</span></div>
+                    <div class="sig-box" id="sigBox">
+                        <canvas id="sigCanvas"></canvas>
+                        <div class="sig-hint" id="sigHint">
+                            <div class="hi">✍️</div>
+                            <p>Klik atau sentuh di sini untuk membuat tanda tangan</p>
                         </div>
-
                     </div>
-
+                    <div class="sig-foot">
+                        <button type="button" class="btn-clr-sig" onclick="clearSig()">🗑️ Hapus TTD</button>
+                        <div class="sig-ok-tag" id="sigOk">✅ Tanda tangan berhasil</div>
+                    </div>
+                    <div class="vmsg" id="mTtd"></div>
                 </div>
 
-
-                <button
-                    type="submit"
-                    class="btn-submit"
-                >
-                    📝 Simpan Data Tamu
+                <button type="submit" class="btn-submit" id="btnSubmit">
+                    <span>📨</span><span>Kirim Data Kunjungan</span>
                 </button>
-
             </form>
+        </div>
+    </div>
 
+    <!-- TAB RIWAYAT -->
+    <div class="tab-content" id="pageRiwayat">
+        <div class="school-header">
+            <div class="logo-wrap">
+                <!-- GANTI src="logo.png" dengan path logo Anda -->
+                <img src="logo.png" alt="Logo SMKN 1 Subang"
+                     onerror="this.outerHTML='<span style=&quot;font-size:36px&quot;>🏫</span>'">
+            </div>
+            <div class="school-info">
+                <h1>SMK NEGERI 1 SUBANG</h1>
+                <div class="tagline">Cerdas, Terampil, dan Berkarakter</div>
+                <div class="contact">📊 Laporan & Riwayat Data Tamu Sekolah</div>
+            </div>
+            <div class="header-right">
+                <div class="dt-live" id="dt2">--</div>
+            </div>
         </div>
 
-    </section>
-
-
-    <!-- =========================
-         TAB RIWAYAT
-    ========================= -->
-    <section
-        id="pageRiwayat"
-        style="display:none;"
-    >
-
-        <!-- STATS -->
-        <div class="stats">
-
-            <div class="stat">
-                <div class="stat-label">
-                    Total Tamu
-                </div>
-                <div
-                    class="stat-value"
-                    id="statTotal"
-                >
-                    0
-                </div>
+        <div class="riwayat-area">
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-num" id="sTotal">0</div><div class="stat-lbl">Total Tamu</div></div>
+                <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-num" id="sHari">0</div><div class="stat-lbl">Hari Ini</div></div>
+                <div class="stat-card"><div class="stat-icon">🗓️</div><div class="stat-num" id="sMinggu">0</div><div class="stat-lbl">Minggu Ini</div></div>
+                <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-num" id="sBulan">0</div><div class="stat-lbl">Bulan Ini</div></div>
             </div>
 
-            <div class="stat">
-                <div class="stat-label">
-                    Hari Ini
-                </div>
-                <div
-                    class="stat-value"
-                    id="statHari"
-                >
-                    0
-                </div>
-            </div>
-
-            <div class="stat">
-                <div class="stat-label">
-                    Minggu Ini
-                </div>
-                <div
-                    class="stat-value"
-                    id="statMinggu"
-                >
-                    0
-                </div>
-            </div>
-
-            <div class="stat">
-                <div class="stat-label">
-                    Bulan Ini
-                </div>
-                <div
-                    class="stat-value"
-                    id="statBulan"
-                >
-                    0
-                </div>
-            </div>
-
-        </div>
-
-
-        <div class="card">
-
-            <!-- ACTION -->
-            <div class="history-actions">
-
-                <button
-                    type="button"
-                    class="btn-action btn-pdf"
-                    onclick="exportPDF()"
-                >
-                    📄 Export PDF
-                </button>
-
-                <button
-                    type="button"
-                    class="btn-action btn-csv"
-                    onclick="exportCSV()"
-                >
-                    📊 Export CSV
-                </button>
-
-                <button
-                    type="button"
-                    class="btn-action btn-danger"
-                    onclick="deleteAllData()"
-                >
-                    🗑 Hapus Semua
-                </button>
-
-            </div>
-
-
-            <!-- FILTER -->
-            <div class="filter-row">
-
-                <input
-                    type="text"
-                    id="searchInput"
-                    class="search-inp"
-                    placeholder="🔎 Cari nama, instansi, keperluan..."
-                    autocomplete="off"
-                >
-
-                <select
-                    id="filterKep"
-                    class="flt-sel"
-                >
-                    <option value="">
-                        Semua Keperluan
-                    </option>
-
-                    <option value="Silaturahmi">
-                        Silaturahmi
-                    </option>
-
-                    <option value="Dinas">
-                        Dinas
-                    </option>
-
-                    <option value="Kerjasama">
-                        Kerjasama
-                    </option>
-
-                    <option value="Kunjungan">
-                        Kunjungan
-                    </option>
-
-                    <option value="Pendaftaran">
-                        Pendaftaran
-                    </option>
-
-                    <option value="Informasi">
-                        Informasi
-                    </option>
-
-                    <option value="Lain-lain">
-                        Lain-lain
-                    </option>
-
+            <div class="toolbar">
+                <input type="text" class="search-inp" id="searchInp" placeholder="🔍 Cari nama, HP, keperluan..." inputmode="search" enterkeyhint="search">
+                <select class="flt-sel" id="fltKep">
+                    <option value="">📋 Semua Keperluan</option>
+                    <option value="Bertemu Kepala Sekolah">Kepala Sekolah</option>
+                    <option value="Bertemu Guru/Wali Kelas">Guru / Wali Kelas</option>
+                    <option value="Urusan Administrasi">Administrasi</option>
+                    <option value="Pendaftaran Siswa Baru">Pendaftaran</option>
+                    <option value="Pengambilan Dokumen">Pengambilan Dokumen</option>
+                    <option value="Rapat / Pertemuan">Rapat</option>
+                    <option value="Kunjungan Industri">Kunjungan Industri</option>
+                    <option value="Survei / Penelitian">Survei</option>
+                    <option value="Lain-lain">Lain-lain</option>
                 </select>
-
-                <input
-                    type="date"
-                    id="filterTanggal"
-                    class="flt-sel"
-                >
-
+                <input type="date" class="flt-sel" id="fltTgl">
+                <button class="btn-pdf" onclick="exportPDF()">📄 Export PDF</button>
+                <button class="btn-csv" onclick="exportCSV()">📊 Export CSV</button>
+                <button class="btn-del-all" onclick="hapusSemua()">🗑️ Hapus Semua</button>
             </div>
 
-
-            <!-- TABLE -->
-            <div class="table-wrap">
-
-                <table>
-
+            <div class="tbl-wrap">
+                <table id="mainTable">
                     <thead>
-
                         <tr>
-                            <th>No</th>
-                            <th>Tanggal</th>
-                            <th>Waktu</th>
-                            <th>Nama</th>
+                            <th style="width:50px;text-align:center;">No</th>
+                            <th>Tanggal & Waktu</th>
+                            <th>Nama Lengkap</th>
                             <th>No. HP</th>
-                            <th>Instansi</th>
+                            <th>Instansi / Asal</th>
                             <th>Keperluan</th>
-                            <th>Aksi</th>
+                            <th style="text-align:center;width:110px;">Aksi</th>
                         </tr>
-
                     </thead>
-
-                    <tbody id="guestTableBody">
-
-                        <tr>
-                            <td
-                                colspan="8"
-                                class="empty"
-                            >
-                                Memuat data...
-                            </td>
-                        </tr>
-
-                    </tbody>
-
+                    <tbody id="tblBody"></tbody>
                 </table>
-
+                <div class="no-data" id="noData">
+                    <div class="nd-icon">📭</div>
+                    <p>Belum ada data tamu</p>
+                    <small>Data tamu akan tampil di sini</small>
+                </div>
             </div>
-
+            <div class="tbl-info" id="tblInfo"></div>
         </div>
+    </div>
+</div>
 
-    </section>
-
-</main>
-
-
-<!-- =========================
-     SUCCESS MODAL
-========================= -->
-<div
-    class="modal-ov"
-    id="mSukses"
->
-
-    <div class="modal">
-
-        <div class="modal-icon">
-            ✓
+<!-- MODAL SUKSES -->
+<div class="modal-ov" id="mSukses">
+    <div class="modal-box">
+        <div class="modal-ico">✅</div>
+        <h3>Terima Kasih!</h3>
+        <p>Data kunjungan Anda berhasil dicatat.<br>Selamat datang di <strong>SMK Negeri 1 Subang</strong>! 🎉</p>
+        <div class="m-summary" id="mSum"></div>
+        <div class="sig-prev-wrap">
+            <p>✍️ Tanda Tangan Anda:</p>
+            <img id="sigPrev" src="" alt="TTD">
         </div>
-
-        <h3>
-            Data Berhasil Disimpan
-        </h3>
-
-        <p>
-            Terima kasih telah mengisi Buku Tamu Digital
-            SMKN 1 Subang.
-        </p>
-
-        <button
-            type="button"
-            class="btn-ok"
-            onclick="closeModal('mSukses')"
-        >
-            OK
-        </button>
-
+        <button class="btn-ok" onclick="closeSukses()">👍 Oke, Terima Kasih!</button>
     </div>
-
 </div>
 
-
-<!-- =========================
-     DETAIL MODAL
-========================= -->
-<div
-    class="modal-ov"
-    id="mDetail"
->
-
-    <div class="modal">
-
-        <h3>
-            Detail Tamu
-        </h3>
-
-        <div
-            class="modal-detail"
-            id="detailContent"
-        ></div>
-
-        <button
-            type="button"
-            class="btn-ok"
-            onclick="closeModal('mDetail')"
-        >
-            Tutup
-        </button>
-
+<!-- MODAL DETAIL -->
+<div class="modal-ov" id="mDetail">
+    <div class="modal-box left">
+        <h3 style="margin-bottom:15px;padding-bottom:12px;border-bottom:2px solid #e8eeff;">📋 Detail Data Tamu</h3>
+        <div id="detailContent"></div>
+        <div style="text-align:center;margin-top:15px;">
+            <button class="btn-ok" onclick="closeDetail()">✕ Tutup</button>
+        </div>
     </div>
-
 </div>
-
-
-<!-- =========================
-     TOAST
-========================= -->
-<div
-    class="toast"
-    id="toast"
-></div>
-
-
-<!-- =========================
-     LOADING
-========================= -->
-<div
-    class="loading"
-    id="loading"
->
-
-    <div class="loading-box">
-
-        <div class="spinner"></div>
-
-        <p id="loadingText">
-            Memproses...
-        </p>
-
-    </div>
-
-</div>
-
 
 <script>
-/* =========================================================
-   FIREBASE
-========================================================= */
-
-const firebaseConfig = {
-    apiKey: "AIzaSyAnHig_I-HIeKpj9nv3nq1cPhqxRCkKPTU",
-    authDomain: "nesas-tamu.firebaseapp.com",
-    databaseURL: "https://nesas-tamu-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "nesas-tamu",
-    storageBucket: "nesas-tamu.firebasestorage.app",
-    messagingSenderId: "1030073439072",
-    appId: "1:1030073439072:web:04bc698db4777ccbe2c405",
-    measurementId: "G-NF52LPMD6W"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const db = firebase.firestore();
-
-const guestCollection = db.collection("buku_tamu");
-
-
-/* =========================================================
-   DATA
-========================================================= */
-
-let guests = [];
-
-let unsubscribeFirebase = null;
-
-
-/* =========================================================
-   ELEMENT
-========================================================= */
-
-const guestForm = document.getElementById("guestForm");
-
-const fNama = document.getElementById("fNama");
-const fHp = document.getElementById("fHp");
-const fInstansi = document.getElementById("fInstansi");
-const fKep = document.getElementById("fKep");
-const fDetail = document.getElementById("fDetail");
-const detailGrp = document.getElementById("detailGrp");
-
-const sigCanvas = document.getElementById("sigCanvas");
-
-const ctx = sigCanvas.getContext("2d");
-
-let drawing = false;
-let hasSignature = false;
-
-
-/* =========================================================
-   TOUCHSCREEN INPUT
-========================================================= */
-
-function focusTouchInput(el) {
-
-    if (!el) {
-        return;
-    }
-
-    setTimeout(function () {
-
-        try {
-            el.focus();
-        } catch (e) {
-            console.log("Focus error:", e);
-        }
-
-    }, 50);
-}
-
-
-function setupTouchInput(id) {
-
-    const el = document.getElementById(id);
-
-    if (!el) {
-        return;
-    }
-
-    /*
-     * Touchscreen TV
-     * touchend membantu memastikan field mendapat focus
-     */
-    el.addEventListener(
-        "touchend",
-        function () {
-            focusTouchInput(this);
-        },
-        false
-    );
-
-
-    /*
-     * Fallback untuk browser yang tidak mendukung
-     * event touchscreen dengan baik
-     */
-    el.addEventListener(
-        "click",
-        function () {
-
-            /*
-             * Jangan preventDefault().
-             * Browser membutuhkan gesture asli untuk
-             * memanggil keyboard bawaan OS.
-             */
-            focusTouchInput(this);
-
-        },
-        false
-    );
-
-}
-
-
-/* Input yang membutuhkan keyboard */
-
-setupTouchInput("fNama");
-setupTouchInput("fHp");
-setupTouchInput("fInstansi");
-setupTouchInput("fDetail");
-setupTouchInput("searchInput");
-
-
-/* =========================================================
-   INPUT NOMOR HP
-========================================================= */
-
-fHp.addEventListener("input", function () {
-
-    this.value = this.value.replace(/[^0-9]/g, "");
-
-});
-
-
-/* =========================================================
-   KEPERLUAN
-========================================================= */
-
-fKep.addEventListener("change", function () {
-
-    if (this.value === "Lain-lain") {
-
-        detailGrp.style.display = "flex";
-
-        setTimeout(function () {
-
-            focusTouchInput(fDetail);
-
-        }, 150);
-
-    } else {
-
-        detailGrp.style.display = "none";
-        fDetail.value = "";
-
-    }
-
-});
-
-
-/* =========================================================
-   SIGNATURE CANVAS
-========================================================= */
-
-function resizeCanvas() {
-
-    const rect = sigCanvas.getBoundingClientRect();
-
-    const ratio = window.devicePixelRatio || 1;
-
-    const oldCanvas = document.createElement("canvas");
-
-    oldCanvas.width = sigCanvas.width;
-    oldCanvas.height = sigCanvas.height;
-
-    if (sigCanvas.width > 0 && sigCanvas.height > 0) {
-
-        oldCanvas
-            .getContext("2d")
-            .drawImage(
-                sigCanvas,
-                0,
-                0
-            );
-    }
-
-    sigCanvas.width = rect.width * ratio;
-    sigCanvas.height = rect.height * ratio;
-
-    ctx.setTransform(
-        ratio,
-        0,
-        0,
-        ratio,
-        0,
-        0
-    );
-
-    ctx.lineWidth = 2;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-}
-
-resizeCanvas();
-
-window.addEventListener(
-    "resize",
-    resizeCanvas
-);
-
-
-/* =========================================================
-   SIGNATURE POSITION
-========================================================= */
-
-function getCanvasPosition(e) {
-
-    const rect = sigCanvas.getBoundingClientRect();
-
-    let clientX;
-    let clientY;
-
-    if (
-        e.touches &&
-        e.touches.length > 0
-    ) {
-
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-
-    } else {
-
-        clientX = e.clientX;
-        clientY = e.clientY;
-
-    }
-
-    return {
-        x: clientX - rect.left,
-        y: clientY - rect.top
-    };
-
-}
-
-
-/* =========================================================
-   SIGNATURE MOUSE
-========================================================= */
-
-sigCanvas.addEventListener(
-    "mousedown",
-    function (e) {
-
-        drawing = true;
-        hasSignature = true;
-
-        const p = getCanvasPosition(e);
-
-        ctx.beginPath();
-        ctx.moveTo(p.x, p.y);
-
-    }
-);
-
-
-sigCanvas.addEventListener(
-    "mousemove",
-    function (e) {
-
-        if (!drawing) {
-            return;
-        }
-
-        const p = getCanvasPosition(e);
-
-        ctx.lineTo(p.x, p.y);
-        ctx.stroke();
-
-    }
-);
-
-
-sigCanvas.addEventListener(
-    "mouseup",
-    function () {
-
-        drawing = false;
-
-    }
-);
-
-
-sigCanvas.addEventListener(
-    "mouseleave",
-    function () {
-
-        drawing = false;
-
-    }
-);
-
-
-/* =========================================================
-   SIGNATURE TOUCH
-========================================================= */
-
-sigCanvas.addEventListener(
-    "touchstart",
-    function (e) {
-
-        e.preventDefault();
-
-        drawing = true;
-        hasSignature = true;
-
-        const p = getCanvasPosition(e);
-
-        ctx.beginPath();
-        ctx.moveTo(p.x, p.y);
-
-    },
-    {
-        passive: false
-    }
-);
-
-
-sigCanvas.addEventListener(
-    "touchmove",
-    function (e) {
-
-        e.preventDefault();
-
-        if (!drawing) {
-            return;
-        }
-
-        const p = getCanvasPosition(e);
-
-        ctx.lineTo(p.x, p.y);
-        ctx.stroke();
-
-    },
-    {
-        passive: false
-    }
-);
-
-
-sigCanvas.addEventListener(
-    "touchend",
-    function (e) {
-
-        e.preventDefault();
-
-        drawing = false;
-
-    },
-    {
-        passive: false
-    }
-);
-
-
-/* =========================================================
-   CLEAR SIGNATURE
-========================================================= */
-
-document.getElementById("clearSig")
-    .addEventListener(
-        "click",
-        clearSignature
-    );
-
-
-function clearSignature() {
-
-    ctx.clearRect(
-        0,
-        0,
-        sigCanvas.width,
-        sigCanvas.height
-    );
-
-    hasSignature = false;
-
-}
-
-
-/* =========================================================
-   LOADING
-========================================================= */
-
-function showLoading(text) {
-
-    document.getElementById("loadingText").textContent =
-        text || "Memproses...";
-
-    document
-        .getElementById("loading")
-        .classList.add("show");
-
-}
-
-
-function hideLoading() {
-
-    document
-        .getElementById("loading")
-        .classList.remove("show");
-
-}
-
-
-/* =========================================================
-   TOAST
-========================================================= */
-
-let toastTimer = null;
-
-function showToast(message) {
-
-    const toast = document.getElementById("toast");
-
-    toast.textContent = message;
-
-    toast.classList.add("show");
-
-    clearTimeout(toastTimer);
-
-    toastTimer = setTimeout(
-        function () {
-
-            toast.classList.remove("show");
-
-        },
-        3000
-    );
-
-}
-
-
-/* =========================================================
-   MODAL
-========================================================= */
-
-function openModal(id) {
-
-    document
-        .getElementById(id)
-        .classList.add("show");
-
-}
-
-
-function closeModal(id) {
-
-    document
-        .getElementById(id)
-        .classList.remove("show");
-
-}
-
-
-/* Tutup modal jika klik area luar */
-
-document.querySelectorAll(".modal-ov")
-    .forEach(function (modal) {
-
-        modal.addEventListener(
-            "click",
-            function (e) {
-
-                if (e.target === modal) {
-
-                    modal.classList.remove("show");
-
-                }
-
+/* TOUCHSCREEN KEYBOARD FIX
+   Menjaga field aktif tetap terlihat saat keyboard virtual muncul.
+   Tidak mengubah layout/tampilan desktop. */
+(function () {
+    var touchDevice = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    if (!touchDevice) return;
+
+    function keepFocusedFieldVisible(el) {
+        if (!el || !el.matches('input, select, textarea')) return;
+
+        window.setTimeout(function () {
+            try {
+                el.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
+            } catch (e) {
+                el.scrollIntoView();
             }
-        );
+        }, 180);
+    }
 
+    document.addEventListener('focusin', function (e) {
+        keepFocusedFieldVisible(e.target);
     });
 
-
-/* =========================================================
-   HIDE KEYBOARD
-========================================================= */
-
-function hideTouchKeyboard() {
-
-    const active = document.activeElement;
-
-    if (!active) {
-        return;
-    }
-
-    const tag = active.tagName;
-
-    if (
-        tag === "INPUT" ||
-        tag === "TEXTAREA"
-    ) {
-
-        try {
-            active.blur();
-        } catch (e) {}
-
-    }
-
-}
-
-
-/* =========================================================
-   FORM SUBMIT
-========================================================= */
-
-guestForm.addEventListener(
-    "submit",
-    async function (e) {
-
-        e.preventDefault();
-
-        hideTouchKeyboard();
-
-
-        /* VALIDASI */
-
-        if (!fNama.value.trim()) {
-
-            showToast("Nama lengkap wajib diisi.");
-
-            focusTouchInput(fNama);
-
-            return;
-
-        }
-
-
-        if (!fHp.value.trim()) {
-
-            showToast("Nomor HP wajib diisi.");
-
-            focusTouchInput(fHp);
-
-            return;
-
-        }
-
-
-        if (!fInstansi.value.trim()) {
-
-            showToast("Instansi / asal wajib diisi.");
-
-            focusTouchInput(fInstansi);
-
-            return;
-
-        }
-
-
-        if (!fKep.value) {
-
-            showToast("Silakan pilih keperluan.");
-
-            fKep.focus();
-
-            return;
-
-        }
-
-
-        if (!hasSignature) {
-
-            showToast("Silakan isi tanda tangan.");
-
-            return;
-
-        }
-
-
-        /* DATA */
-
-        const now = new Date();
-
-        const tanggal =
-            now.toLocaleDateString(
-                "id-ID",
-                {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric"
-                }
-            );
-
-        const waktu =
-            now.toLocaleTimeString(
-                "id-ID",
-                {
-                    hour: "2-digit",
-                    minute: "2-digit"
-                }
-            );
-
-
-        const ttd =
-            sigCanvas.toDataURL(
-                "image/png"
-            );
-
-
-        const data = {
-
-            nama: fNama.value.trim(),
-
-            hp: fHp.value.trim(),
-
-            instansi: fInstansi.value.trim(),
-
-            keperluan: fKep.value,
-
-            detail:
-                fDetail.value.trim(),
-
-            tanggal: tanggal,
-
-            waktu: waktu,
-
-            timestamp:
-                firebase.firestore.FieldValue.serverTimestamp(),
-
-            ttd: ttd
-
-        };
-
-
-        try {
-
-            showLoading(
-                "Menyimpan data tamu..."
-            );
-
-
-            await guestCollection.add(data);
-
-
-            hideLoading();
-
-
-            /* RESET */
-
-            guestForm.reset();
-
-            detailGrp.style.display = "none";
-
-            clearSignature();
-
-
-            /* SUCCESS */
-
-            openModal("mSukses");
-
-
-        } catch (error) {
-
-            hideLoading();
-
-            console.error(error);
-
-            showToast(
-                "Gagal menyimpan data. Silakan coba lagi."
-            );
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   FIREBASE REALTIME
-========================================================= */
-
-function startRealtime() {
-
-    if (unsubscribeFirebase) {
-
-        unsubscribeFirebase();
-
-    }
-
-
-    unsubscribeFirebase =
-        guestCollection
-            .orderBy(
-                "timestamp",
-                "asc"
-            )
-            .onSnapshot(
-
-                function (snapshot) {
-
-                    guests = [];
-
-                    snapshot.forEach(
-                        function (doc) {
-
-                            guests.push({
-                                id: doc.id,
-                                ...doc.data()
-                            });
-
-                        }
-                    );
-
-
-                    renderTable();
-
-                    updateStats();
-
-                },
-
-                function (error) {
-
-                    console.error(
-                        "Firebase realtime error:",
-                        error
-                    );
-
-                    showToast(
-                        "Gagal mengambil data dari Firebase."
-                    );
-
-                }
-            );
-
-}
-
-
-/* =========================================================
-   LOAD FIREBASE
-========================================================= */
-
-async function loadFromFirebase() {
-
-    try {
-
-        showLoading(
-            "Memuat data..."
-        );
-
-        const snapshot =
-            await guestCollection
-                .orderBy(
-                    "timestamp",
-                    "asc"
-                )
-                .get();
-
-
-        guests = [];
-
-        snapshot.forEach(
-            function (doc) {
-
-                guests.push({
-                    id: doc.id,
-                    ...doc.data()
-                });
-
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', function () {
+            var active = document.activeElement;
+            if (active && active.matches && active.matches('input, select, textarea')) {
+                window.setTimeout(function () {
+                    keepFocusedFieldVisible(active);
+                }, 80);
             }
-        );
-
-
-        renderTable();
-
-        updateStats();
-
-        hideLoading();
-
-    } catch (error) {
-
-        hideLoading();
-
-        console.error(error);
-
-        showToast(
-            "Gagal memuat data."
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   FILTER
-========================================================= */
-
-document.getElementById("searchInput")
-    .addEventListener(
-        "input",
-        renderTable
-    );
-
-
-document.getElementById("filterKep")
-    .addEventListener(
-        "change",
-        renderTable
-    );
-
-
-document.getElementById("filterTanggal")
-    .addEventListener(
-        "change",
-        renderTable
-    );
-
-
-function getFilteredGuests() {
-
-    const search =
-        document
-            .getElementById("searchInput")
-            .value
-            .toLowerCase()
-            .trim();
-
-    const kep =
-        document
-            .getElementById("filterKep")
-            .value;
-
-    const tanggal =
-        document
-            .getElementById("filterTanggal")
-            .value;
-
-
-    return guests.filter(
-        function (g) {
-
-            const searchable =
-                (
-                    (g.nama || "") +
-                    " " +
-                    (g.hp || "") +
-                    " " +
-                    (g.instansi || "") +
-                    " " +
-                    (g.keperluan || "") +
-                    " " +
-                    (g.detail || "")
-                ).toLowerCase();
-
-
-            const matchSearch =
-                !search ||
-                searchable.includes(search);
-
-
-            const matchKep =
-                !kep ||
-                g.keperluan === kep;
-
-
-            let matchTanggal = true;
-
-
-            if (tanggal) {
-
-                const parts =
-                    (g.tanggal || "").split("/");
-
-                if (parts.length === 3) {
-
-                    const formatted =
-                        parts[2] +
-                        "-" +
-                        parts[1] +
-                        "-" +
-                        parts[0];
-
-                    matchTanggal =
-                        formatted === tanggal;
-
-                } else {
-
-                    matchTanggal = false;
-
-                }
-
-            }
-
-
-            return (
-                matchSearch &&
-                matchKep &&
-                matchTanggal
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   RENDER TABLE
-========================================================= */
-
-function renderTable() {
-
-    const tbody =
-        document.getElementById(
-            "guestTableBody"
-        );
-
-
-    const data =
-        getFilteredGuests();
-
-
-    if (!data.length) {
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="8" class="empty">
-                    Belum ada data tamu.
-                </td>
-            </tr>
-        `;
-
-        return;
-
-    }
-
-
-    tbody.innerHTML =
-        data.map(
-            function (g, index) {
-
-                return `
-                    <tr>
-
-                        <td>
-                            ${index + 1}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(g.tanggal || "-")}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(g.waktu || "-")}
-                        </td>
-
-                        <td>
-                            <strong>
-                                ${escapeHTML(g.nama || "-")}
-                            </strong>
-                        </td>
-
-                        <td>
-                            ${escapeHTML(g.hp || "-")}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(g.instansi || "-")}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(g.keperluan || "-")}
-                        </td>
-
-                        <td>
-
-                            <button
-                                type="button"
-                                class="btn-small btn-detail"
-                                onclick="showDetail('${g.id}')"
-                            >
-                                Detail
-                            </button>
-
-                            <button
-                                type="button"
-                                class="btn-small btn-delete"
-                                onclick="deleteGuest('${g.id}')"
-                            >
-                                Hapus
-                            </button>
-
-                        </td>
-
-                    </tr>
-                `;
-
-            }
-        ).join("");
-
-}
-
-
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
-
-function escapeHTML(value) {
-
-    return String(value || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
-
-
-/* =========================================================
-   STATS
-========================================================= */
-
-function updateStats() {
-
-    const now = new Date();
-
-    const today =
-        new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            now.getDate()
-        );
-
-
-    const dayOfWeek =
-        today.getDay();
-
-
-    const diffToMonday =
-        dayOfWeek === 0
-            ? 6
-            : dayOfWeek - 1;
-
-
-    const startWeek =
-        new Date(today);
-
-    startWeek.setDate(
-        today.getDate() -
-        diffToMonday
-    );
-
-
-    const startMonth =
-        new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            1
-        );
-
-
-    let total = guests.length;
-    let hari = 0;
-    let minggu = 0;
-    let bulan = 0;
-
-
-    guests.forEach(
-        function (g) {
-
-            const d =
-                parseGuestDate(g);
-
-
-            if (!d) {
-                return;
-            }
-
-
-            if (sameDay(d, today)) {
-
-                hari++;
-
-            }
-
-
-            if (d >= startWeek) {
-
-                minggu++;
-
-            }
-
-
-            if (d >= startMonth) {
-
-                bulan++;
-
-            }
-
-        }
-    );
-
-
-    document.getElementById(
-        "statTotal"
-    ).textContent = total;
-
-
-    document.getElementById(
-        "statHari"
-    ).textContent = hari;
-
-
-    document.getElementById(
-        "statMinggu"
-    ).textContent = minggu;
-
-
-    document.getElementById(
-        "statBulan"
-    ).textContent = bulan;
-
-}
-
-
-/* =========================================================
-   PARSE DATE
-========================================================= */
-
-function parseGuestDate(g) {
-
-    if (!g) {
-        return null;
-    }
-
-
-    if (
-        g.timestamp &&
-        typeof g.timestamp.toDate === "function"
-    ) {
-
-        return g.timestamp.toDate();
-
-    }
-
-
-    if (g.tanggal) {
-
-        const parts =
-            g.tanggal.split("/");
-
-
-        if (parts.length === 3) {
-
-            return new Date(
-                Number(parts[2]),
-                Number(parts[1]) - 1,
-                Number(parts[0])
-            );
-
-        }
-
-    }
-
-
-    return null;
-
-}
-
-
-/* =========================================================
-   SAME DAY
-========================================================= */
-
-function sameDay(a, b) {
-
-    return (
-        a.getFullYear() === b.getFullYear() &&
-        a.getMonth() === b.getMonth() &&
-        a.getDate() === b.getDate()
-    );
-
-}
-
-
-/* =========================================================
-   DETAIL
-========================================================= */
-
-function showDetail(id) {
-
-    const guest =
-        guests.find(
-            function (g) {
-                return g.id === id;
-            }
-        );
-
-
-    if (!guest) {
-
-        showToast(
-            "Data tidak ditemukan."
-        );
-
-        return;
-
-    }
-
-
-    const content =
-        document.getElementById(
-            "detailContent"
-        );
-
-
-    content.innerHTML = `
-
-        <div class="detail-row">
-            <span class="detail-label">
-                Nama
-            </span>
-
-            <span class="detail-value">
-                ${escapeHTML(guest.nama)}
-            </span>
-        </div>
-
-
-        <div class="detail-row">
-            <span class="detail-label">
-                No. HP
-            </span>
-
-            <span class="detail-value">
-                ${escapeHTML(guest.hp)}
-            </span>
-        </div>
-
-
-        <div class="detail-row">
-            <span class="detail-label">
-                Instansi
-            </span>
-
-            <span class="detail-value">
-                ${escapeHTML(guest.instansi)}
-            </span>
-        </div>
-
-
-        <div class="detail-row">
-            <span class="detail-label">
-                Keperluan
-            </span>
-
-            <span class="detail-value">
-                ${escapeHTML(guest.keperluan)}
-            </span>
-        </div>
-
-
-        ${
-            guest.detail
-            ?
-            `
-                <div class="detail-row">
-
-                    <span class="detail-label">
-                        Detail
-                    </span>
-
-                    <span class="detail-value">
-                        ${escapeHTML(guest.detail)}
-                    </span>
-
-                </div>
-            `
-            :
-            ""
-        }
-
-
-        <div class="detail-row">
-            <span class="detail-label">
-                Tanggal
-            </span>
-
-            <span class="detail-value">
-                ${escapeHTML(guest.tanggal)}
-            </span>
-        </div>
-
-
-        <div class="detail-row">
-            <span class="detail-label">
-                Waktu
-            </span>
-
-            <span class="detail-value">
-                ${escapeHTML(guest.waktu)}
-            </span>
-        </div>
-
-
-        ${
-            guest.ttd
-            ?
-            `
-                <div
-                    style="
-                        margin-top:15px;
-                        text-align:center;
-                    "
-                >
-
-                    <div
-                        style="
-                            font-size:13px;
-                            color:#667085;
-                            margin-bottom:8px;
-                        "
-                    >
-                        Tanda Tangan
-                    </div>
-
-                    <img
-                        src="${guest.ttd}"
-                        style="
-                            max-width:100%;
-                            height:120px;
-                            object-fit:contain;
-                            border:1px solid #eaecf0;
-                            border-radius:10px;
-                            background:#fff;
-                        "
-                    >
-
-                </div>
-            `
-            :
-            ""
-        }
-
-    `;
-
-
-    openModal("mDetail");
-
-}
-
-
-/* =========================================================
-   DELETE GUEST
-========================================================= */
-
-async function deleteGuest(id) {
-
-    const guest =
-        guests.find(
-            function (g) {
-                return g.id === id;
-            }
-        );
-
-
-    if (!guest) {
-        return;
-    }
-
-
-    const yakin =
-        confirm(
-            "Hapus data tamu atas nama " +
-            guest.nama +
-            "?"
-        );
-
-
-    if (!yakin) {
-        return;
-    }
-
-
-    try {
-
-        showLoading(
-            "Menghapus data..."
-        );
-
-
-        await guestCollection
-            .doc(id)
-            .delete();
-
-
-        hideLoading();
-
-        showToast(
-            "Data berhasil dihapus."
-        );
-
-    } catch (error) {
-
-        hideLoading();
-
-        console.error(error);
-
-        showToast(
-            "Gagal menghapus data."
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   DELETE ALL
-========================================================= */
-
-async function deleteAllData() {
-
-    if (!guests.length) {
-
-        showToast(
-            "Tidak ada data untuk dihapus."
-        );
-
-        return;
-
-    }
-
-
-    const yakin =
-        confirm(
-            "PERINGATAN!\n\n" +
-            "Semua data buku tamu akan dihapus.\n" +
-            "Tindakan ini tidak dapat dibatalkan.\n\n" +
-            "Lanjutkan?"
-        );
-
-
-    if (!yakin) {
-        return;
-    }
-
-
-    try {
-
-        showLoading(
-            "Menghapus semua data..."
-        );
-
-
-        const batch =
-            db.batch();
-
-
-        guests.forEach(
-            function (g) {
-
-                const ref =
-                    guestCollection.doc(g.id);
-
-                batch.delete(ref);
-
-            }
-        );
-
-
-        await batch.commit();
-
-
-        hideLoading();
-
-        showToast(
-            "Semua data berhasil dihapus."
-        );
-
-    } catch (error) {
-
-        hideLoading();
-
-        console.error(error);
-
-        showToast(
-            "Gagal menghapus semua data."
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   EXPORT CSV
-========================================================= */
-
-function exportCSV() {
-
-    const data =
-        getFilteredGuests();
-
-
-    if (!data.length) {
-
-        showToast(
-            "Tidak ada data untuk diekspor."
-        );
-
-        return;
-
-    }
-
-
-    let csv =
-        "No,Tanggal,Waktu,Nama,No HP,Instansi,Keperluan,Detail\n";
-
-
-    data.forEach(
-        function (g, index) {
-
-            csv += [
-                index + 1,
-                csvEscape(g.tanggal),
-                csvEscape(g.waktu),
-                csvEscape(g.nama),
-                csvEscape(g.hp),
-                csvEscape(g.instansi),
-                csvEscape(g.keperluan),
-                csvEscape(g.detail || "")
-            ].join(",") + "\n";
-
-        }
-    );
-
-
-    const blob =
-        new Blob(
-            ["\ufeff" + csv],
-            {
-                type: "text/csv;charset=utf-8;"
-            }
-        );
-
-
-    const url =
-        URL.createObjectURL(blob);
-
-
-    const a =
-        document.createElement("a");
-
-    a.href = url;
-
-    a.download =
-        "buku-tamu-smkn-1-subang.csv";
-
-    document.body.appendChild(a);
-
-    a.click();
-
-    document.body.removeChild(a);
-
-    URL.revokeObjectURL(url);
-
-
-    showToast(
-        "CSV berhasil dibuat."
-    );
-
-}
-
-
-/* =========================================================
-   CSV ESCAPE
-========================================================= */
-
-function csvEscape(value) {
-
-    value =
-        String(value || "");
-
-    return '"' +
-        value
-            .replace(/"/g, '""') +
-        '"';
-
-}
-
-
-/* =========================================================
-   EXPORT PDF
-========================================================= */
-
-function exportPDF() {
-
-    const data =
-        getFilteredGuests();
-
-
-    if (!data.length) {
-
-        showToast(
-            "Tidak ada data untuk diekspor."
-        );
-
-        return;
-
-    }
-
-
-    try {
-
-        const {
-            jsPDF
-        } = window.jspdf;
-
-
-        const doc =
-            new jsPDF({
-                orientation: "landscape",
-                unit: "mm",
-                format: "a4"
-            });
-
-
-        doc.setFontSize(16);
-
-        doc.setFont(
-            "helvetica",
-            "bold"
-        );
-
-
-        doc.text(
-            "BUKU TAMU DIGITAL",
-            148,
-            15,
-            {
-                align: "center"
-            }
-        );
-
-
-        doc.setFontSize(11);
-
-        doc.setFont(
-            "helvetica",
-            "normal"
-        );
-
-
-        doc.text(
-            "SMK NEGERI 1 SUBANG",
-            148,
-            22,
-            {
-                align: "center"
-            }
-        );
-
-
-        const rows =
-            data.map(
-                function (g, index) {
-
-                    return [
-
-                        index + 1,
-
-                        g.tanggal || "-",
-
-                        g.waktu || "-",
-
-                        g.nama || "-",
-
-                        g.hp || "-",
-
-                        g.instansi || "-",
-
-                        g.keperluan || "-"
-
-                    ];
-
-                }
-            );
-
-
-        doc.autoTable({
-
-            startY: 30,
-
-            head: [[
-                "No",
-                "Tanggal",
-                "Waktu",
-                "Nama",
-                "No. HP",
-                "Instansi",
-                "Keperluan"
-            ]],
-
-            body: rows,
-
-            theme: "grid",
-
-            styles: {
-                fontSize: 8,
-                cellPadding: 3
-            },
-
-            headStyles: {
-                fillColor: [0, 48, 135],
-                textColor: 255,
-                fontStyle: "bold"
-            }
-
         });
-
-
-        doc.save(
-            "buku-tamu-smkn-1-subang.pdf"
-        );
-
-
-        showToast(
-            "PDF berhasil dibuat."
-        );
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        showToast(
-            "Gagal membuat PDF."
-        );
-
     }
-
-}
-
-
-/* =========================================================
-   SWITCH TAB
-========================================================= */
-
-function switchTab(tab) {
-
-    const pageIsi =
-        document.getElementById(
-            "pageIsi"
-        );
-
-    const pageRiwayat =
-        document.getElementById(
-            "pageRiwayat"
-        );
-
-
-    const tabIsi =
-        document.getElementById(
-            "tabIsi"
-        );
-
-    const tabRiwayat =
-        document.getElementById(
-            "tabRiwayat"
-        );
-
-
-    if (tab === "isi") {
-
-        pageIsi.style.display = "block";
-
-        pageRiwayat.style.display = "none";
-
-        tabIsi.classList.add("active");
-
-        tabRiwayat.classList.remove("active");
-
-    } else {
-
-        pageIsi.style.display = "none";
-
-        pageRiwayat.style.display = "block";
-
-        tabIsi.classList.remove("active");
-
-        tabRiwayat.classList.add("active");
-
-        renderTable();
-
-        updateStats();
-
-    }
-
-}
-
-
-/* =========================================================
-   DATETIME / CLOCK
-========================================================= */
-
-function updateDateTime() {
-
-    /*
-     * Fungsi disiapkan agar aplikasi tetap kompatibel
-     * jika nantinya ingin menampilkan jam realtime.
-     */
-
-}
-
-
-/* =========================================================
-   START FIREBASE
-========================================================= */
-
-startRealtime();
-
-
-/* =========================================================
-   BROWSER ICON COMPATIBILITY
-   Mengubah emoji menjadi Twemoji SVG agar browser lama
-   tetap dapat menampilkan icon.
-========================================================= */
-
-(function () {
-
-    var emojiMap = {
-
-        "📝":
-            "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4dd.svg",
-
-        "📋":
-            "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4cb.svg",
-
-        "📍":
-            "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4cd.svg",
-
-        "📞":
-            "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4de.svg",
-
-        "🔎":
-            "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f50e.svg",
-
-        "📄":
-            "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4c4.svg",
-
-        "📊":
-            "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4ca.svg",
-
-        "🗑":
-            "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f5d1.svg",
-
-        "✓":
-            "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2713.svg"
-
-    };
-
-
-    function replaceEmoji(root) {
-
-        if (!root) {
-            return;
-        }
-
-
-        var walker =
-            document.createTreeWalker(
-                root,
-                NodeFilter.SHOW_TEXT,
-                null,
-                false
-            );
-
-
-        var nodes = [];
-
-        var node;
-
-
-        while (
-            node = walker.nextNode()
-        ) {
-
-            var parent =
-                node.parentNode;
-
-
-            if (!parent) {
-                continue;
-            }
-
-
-            var tag =
-                parent.tagName;
-
-
-            if (
-                tag === "SCRIPT" ||
-                tag === "STYLE" ||
-                tag === "TEXTAREA" ||
-                tag === "INPUT"
-            ) {
-                continue;
-            }
-
-
-            nodes.push(node);
-
-        }
-
-
-        nodes.forEach(
-            function (textNode) {
-
-                var text =
-                    textNode.nodeValue;
-
-
-                Object.keys(
-                    emojiMap
-                ).forEach(
-                    function (emoji) {
-
-                        if (
-                            text.indexOf(emoji) === -1
-                        ) {
-                            return;
-                        }
-
-
-                        var parts =
-                            text.split(emoji);
-
-
-                        var frag =
-                            document.createDocumentFragment();
-
-
-                        parts.forEach(
-                            function (part, index) {
-
-                                if (part) {
-
-                                    frag.appendChild(
-                                        document.createTextNode(
-                                            part
-                                        )
-                                    );
-
-                                }
-
-
-                                if (
-                                    index <
-                                    parts.length - 1
-                                ) {
-
-                                    var img =
-                                        document.createElement(
-                                            "img"
-                                        );
-
-
-                                    img.src =
-                                        emojiMap[emoji];
-
-                                    img.alt =
-                                        emoji;
-
-                                    img.style.width =
-                                        "1em";
-
-                                    img.style.height =
-                                        "1em";
-
-                                    img.style.verticalAlign =
-                                        "-0.15em";
-
-                                    img.style.display =
-                                        "inline-block";
-
-
-                                    frag.appendChild(
-                                        img
-                                    );
-
-                                }
-
-                            }
-                        );
-
-
-                        if (
-                            textNode.parentNode
-                        ) {
-
-                            textNode.parentNode
-                                .replaceChild(
-                                    frag,
-                                    textNode
-                                );
-
-                        }
-
-                    }
-                );
-
-            }
-        );
-
-    }
-
-
-    if (
-        document.readyState ===
-        "loading"
-    ) {
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            function () {
-
-                replaceEmoji(
-                    document.body
-                );
-
-            }
-        );
-
-    } else {
-
-        replaceEmoji(
-            document.body
-        );
-
-    }
-
-
-    /*
-     * Untuk elemen yang muncul kemudian
-     */
-    if (
-        typeof MutationObserver !==
-        "undefined"
-    ) {
-
-        var observer =
-            new MutationObserver(
-                function (mutations) {
-
-                    mutations.forEach(
-                        function (mutation) {
-
-                            mutation.addedNodes.forEach(
-                                function (node) {
-
-                                    if (
-                                        node.nodeType === 1
-                                    ) {
-
-                                        replaceEmoji(
-                                            node
-                                        );
-
-                                    }
-
-                                }
-                            );
-
-                        }
-                    );
-
-                }
-            );
-
-
-        observer.observe(
-            document.body,
-            {
-                childList: true,
-                subtree: true
-            }
-        );
-
-    }
-
 })();
 </script>
 
+<script>
+// ============================================================
+// ⚙️ FIREBASE CONFIG — GANTI DENGAN MILIK ANDA
+// Dapatkan dari: console.firebase.google.com
+// Project Settings → General → Your Apps → SDK Setup
+// ============================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyAnHig_I-HIeKpj9nv3nq1cPhqxRCkKPTU",
+  authDomain: "nesas-tamu.firebaseapp.com",
+  databaseURL: "https://nesas-tamu-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "nesas-tamu",
+  storageBucket: "nesas-tamu.firebasestorage.app",
+  messagingSenderId: "1030073439072",
+  appId: "1:1030073439072:web:04bc698db4777ccbe2c405",
+  measurementId: "G-NF52LPMD6W"
+};
+
+// ============================================================
+// INISIALISASI FIREBASE
+// ============================================================
+firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
+var COLLECTION = 'buku_tamu';
+
+// Cache data lokal
+var guests   = [];
+var sigDrawn = false;
+
+// ============================================================
+// KONEKSI STATUS
+// ============================================================
+function setConn(status, text) {
+    var el = document.getElementById('connStatus');
+    var tx = document.getElementById('connText');
+    if (!el) return;
+    el.className = 'conn-status ' + status;
+    tx.textContent = text;
+}
+
+// ============================================================
+// LOAD DATA DARI FIREBASE
+// ============================================================
+function loadFromFirebase() {
+    setConn('loading', 'Memuat data...');
+    showLoading('Memuat data dari database...');
+
+    db.collection(COLLECTION)
+      .orderBy('timestamp', 'asc')
+      .get()
+      .then(function(snapshot) {
+          guests = [];
+          snapshot.forEach(function(doc) {
+              var data  = doc.data();
+              data.id   = doc.id;
+              guests.push(data);
+          });
+          hideLoading();
+          setConn('online', 'Terhubung ke Database');
+          refreshBadge();
+          renderTable(guests);
+          updateStats();
+          showToast('Data berhasil dimuat (' + guests.length + ' tamu)', '☁️');
+      })
+      .catch(function(err) {
+          hideLoading();
+          setConn('offline', 'Koneksi Gagal');
+          console.error('Firebase error:', err);
+          showToast('Gagal memuat data. Periksa koneksi!', '❌');
+      });
+}
+
+// Real-time listener
+function startRealtime() {
+    db.collection(COLLECTION)
+      .orderBy('timestamp', 'asc')
+      .onSnapshot(function(snapshot) {
+          guests = [];
+          snapshot.forEach(function(doc) {
+              var data = doc.data();
+              data.id  = doc.id;
+              guests.push(data);
+          });
+          setConn('online', 'Terhubung \u2022 Live');
+          refreshBadge();
+          // Update tabel jika sedang di tab riwayat
+          var riwayatTab = document.getElementById('pageRiwayat');
+          if (riwayatTab && riwayatTab.classList.contains('active')) {
+              renderTable(guests);
+              updateStats();
+          }
+      }, function(err) {
+          setConn('offline', 'Koneksi Terputus');
+          console.error('Realtime error:', err);
+      });
+}
+
+// ============================================================
+// LOADING OVERLAY
+// ============================================================
+function showLoading(msg) {
+    document.getElementById('loadingMsg').textContent = msg || 'Memproses...';
+    document.getElementById('loadingOv').classList.add('show');
+}
+
+function hideLoading() {
+    document.getElementById('loadingOv').classList.remove('show');
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+var toastTimer = null;
+function showToast(msg, ico, dur) {
+    ico = ico || '✅'; dur = dur || 3200;
+    clearTimeout(toastTimer);
+    document.getElementById('toastMsg').textContent = msg;
+    document.getElementById('toastIco').textContent = ico;
+    document.getElementById('toast').classList.add('show');
+    toastTimer = setTimeout(function() {
+        document.getElementById('toast').classList.remove('show');
+    }, dur);
+}
+
+// ============================================================
+// DATETIME
+// ============================================================
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function tickTime() {
+    var now = new Date();
+    var D = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    var M = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    var s = D[now.getDay()] + ', ' + now.getDate() + ' ' + M[now.getMonth()] + ' ' +
+            now.getFullYear() + ' \u2022 ' + pad(now.getHours()) + ':' +
+            pad(now.getMinutes()) + ':' + pad(now.getSeconds()) + ' WIB';
+    var a = document.getElementById('dt1');
+    var b = document.getElementById('dt2');
+    if (a) a.textContent = s;
+    if (b) b.textContent = s;
+}
+setInterval(tickTime, 1000);
+tickTime();
+
+// ============================================================
+// BADGE
+// ============================================================
+function refreshBadge() {
+    var vc = document.getElementById('vcBadge');
+    var tb = document.getElementById('tabBadge');
+    if (vc) vc.textContent = '🙋 Tamu ke-' + (guests.length + 1);
+    if (tb) tb.textContent = guests.length;
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(tab) {
+    var btnForm     = document.getElementById('btnForm');
+    var btnRiwayat  = document.getElementById('btnRiwayat');
+    var pageForm    = document.getElementById('pageForm');
+    var pageRiwayat = document.getElementById('pageRiwayat');
+
+    if (tab === 'form') {
+        btnForm.classList.add('active');
+        btnRiwayat.classList.remove('active');
+        pageForm.classList.add('active');
+        pageRiwayat.classList.remove('active');
+        pageForm.style.borderRadius    = '0 20px 20px 20px';
+        pageRiwayat.style.borderRadius = '20px 0 20px 20px';
+    } else {
+        btnRiwayat.classList.add('active');
+        btnForm.classList.remove('active');
+        pageRiwayat.classList.add('active');
+        pageForm.classList.remove('active');
+        pageRiwayat.style.borderRadius = '20px 0 20px 20px';
+        pageForm.style.borderRadius    = '0 20px 20px 20px';
+        renderTable(guests);
+        updateStats();
+    }
+}
+
+// ============================================================
+// PROGRESS
+// ============================================================
+var PROG = ['Mulai isi form','25% - Lanjutkan!','50% - Setengah jalan!','75% - Hampir selesai!','100% - Siap dikirim! 🎉'];
+
+function updateProg() {
+    var s = 0;
+    if (document.getElementById('fNama').value.trim().length >= 3) s++;
+    if (document.getElementById('fHp').value.trim().length >= 10) s++;
+    if (document.getElementById('fKep').value) s++;
+    if (sigDrawn) s++;
+    document.getElementById('progFill').style.width = (s * 25) + '%';
+    document.getElementById('progText').textContent = PROG[s];
+}
+
+// ============================================================
+// VALIDASI
+// ============================================================
+function vMsg(el, msgEl, text, type) {
+    msgEl.textContent = text;
+    msgEl.className   = 'vmsg' + (type ? ' ' + type : '');
+}
+
+var fNama = document.getElementById('fNama');
+var fHp   = document.getElementById('fHp');
+var fKep  = document.getElementById('fKep');
+
+fNama.addEventListener('input', function() {
+    var v = fNama.value.trim(), m = document.getElementById('mNama');
+    if (!v)          { vMsg(fNama, m, '', '');                          fNama.className = ''; }
+    else if (v.length < 3) { vMsg(fNama, m, '⚠ Minimal 3 karakter', 'err'); fNama.className = 'err'; }
+    else             { vMsg(fNama, m, '✓ Nama valid', 'ok');           fNama.className = 'ok'; }
+    updateProg();
+});
+
+fHp.addEventListener('input', function() {
+    fHp.value = fHp.value.replace(/\D/g, '');
+    var v = fHp.value, m = document.getElementById('mHp');
+    if (!v)                     { vMsg(fHp, m, '', '');                                  fHp.className = ''; }
+    else if (v.length < 10 || v.length > 15) { vMsg(fHp, m, '⚠ Nomor tidak valid', 'err'); fHp.className = 'err'; }
+    else                        { vMsg(fHp, m, '✓ Nomor valid', 'ok');                  fHp.className = 'ok'; }
+    updateProg();
+});
+
+fKep.addEventListener('change', function() {
+    var v = fKep.value, m = document.getElementById('mKep');
+    document.getElementById('detailGrp').style.display = v === 'Lain-lain' ? 'block' : 'none';
+    if (v) { vMsg(fKep, m, '✓ Keperluan dipilih', 'ok'); fKep.className = 'ok'; }
+    else   { vMsg(fKep, m, '', '');                       fKep.className = ''; }
+    updateProg();
+});
+
+// ============================================================
+// SIGNATURE PAD
+// ============================================================
+var canvas  = document.getElementById('sigCanvas');
+var ctx     = canvas.getContext('2d');
+var drawing = false;
+
+function initSig() {
+    var box = document.getElementById('sigBox');
+    var dpr = window.devicePixelRatio || 1;
+    var w   = box.offsetWidth;
+    canvas.width = w * dpr; canvas.height = 130 * dpr;
+    canvas.style.width = w + 'px'; canvas.style.height = '130px';
+    ctx.scale(dpr, dpr);
+    ctx.strokeStyle = '#003087'; ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+}
+
+initSig();
+window.addEventListener('resize', function() { if (!sigDrawn) initSig(); });
+
+function evPos(e) {
+    var r = canvas.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+    var sx = (canvas.width / dpr) / r.width, sy = (canvas.height / dpr) / r.height;
+    var src = e.touches ? e.touches[0] : e;
+    return { x: (src.clientX - r.left) * sx, y: (src.clientY - r.top) * sy };
+}
+
+canvas.addEventListener('mousedown',  function(e) { drawing = true;  var p = evPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+canvas.addEventListener('mousemove',  function(e) { if (!drawing) return; var p = evPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); onSigDraw(); });
+canvas.addEventListener('mouseup',    function()  { drawing = false; });
+canvas.addEventListener('mouseleave', function()  { drawing = false; });
+canvas.addEventListener('touchstart', function(e) { e.preventDefault(); drawing = true;  var p = evPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }, { passive: false });
+canvas.addEventListener('touchmove',  function(e) { e.preventDefault(); if (!drawing) return; var p = evPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); onSigDraw(); }, { passive: false });
+canvas.addEventListener('touchend',   function(e) { e.preventDefault(); drawing = false; });
+
+function onSigDraw() {
+    if (!sigDrawn) {
+        sigDrawn = true;
+        document.getElementById('sigHint').style.opacity = '0';
+        document.getElementById('sigBox').classList.add('signed');
+        document.getElementById('sigOk').classList.add('show');
+        document.getElementById('mTtd').textContent = '✓ Tanda tangan berhasil';
+        document.getElementById('mTtd').className   = 'vmsg ok';
+        updateProg();
+    }
+}
+
+function clearSig() {
+    var dpr = window.devicePixelRatio || 1;
+    ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+    sigDrawn = false;
+    document.getElementById('sigHint').style.opacity = '1';
+    document.getElementById('sigBox').classList.remove('signed');
+    document.getElementById('sigOk').classList.remove('show');
+    document.getElementById('mTtd').textContent = '';
+    document.getElementById('mTtd').className   = 'vmsg';
+    updateProg();
+}
+
+// ============================================================
+// FORM SUBMIT → SIMPAN KE FIREBASE
+// ============================================================
+document.getElementById('guestForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var nama     = fNama.value.trim();
+    var hp       = fHp.value.trim();
+    var kep      = fKep.value;
+    var detail   = document.getElementById('fDetail').value.trim();
+    var instansi = document.getElementById('fInstansi').value.trim();
+    var ok = true;
+
+    if (nama.length < 3) { vMsg(fNama, document.getElementById('mNama'), '⚠ Nama wajib diisi', 'err'); fNama.className = 'err'; ok = false; }
+    if (hp.length < 10)  { vMsg(fHp,   document.getElementById('mHp'),   '⚠ Nomor HP wajib diisi', 'err'); fHp.className = 'err'; ok = false; }
+    if (!kep)            { vMsg(fKep,  document.getElementById('mKep'),   '⚠ Keperluan wajib dipilih', 'err'); fKep.className = 'err'; ok = false; }
+    if (kep === 'Lain-lain' && !detail) { showToast('Mohon isi keterangan keperluan!', '⚠️'); ok = false; }
+    if (!sigDrawn) { document.getElementById('mTtd').textContent = '⚠ Tanda tangan wajib diisi'; document.getElementById('mTtd').className = 'vmsg err'; ok = false; }
+    if (!ok) return;
+
+    var now      = new Date();
+    var finalKep = kep === 'Lain-lain' ? 'Lain-lain: ' + detail : kep;
+
+    var data = {
+        nama     : nama,
+        hp       : hp,
+        instansi : instansi || '-',
+        keperluan: finalKep,
+        tanggal  : now.toLocaleDateString('id-ID', { day:'2-digit', month:'2-digit', year:'numeric' }),
+        waktu    : now.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' }),
+        timestamp: now.toISOString(),
+        ttd      : canvas.toDataURL('image/png')
+    };
+
+    // Disable tombol submit
+    var btn = document.getElementById('btnSubmit');
+    btn.disabled = true;
+    btn.innerHTML = '<span>⏳</span><span>Menyimpan...</span>';
+    showLoading('Menyimpan data ke database...');
+
+    // SIMPAN KE FIREBASE
+    db.collection(COLLECTION).add(data)
+        .then(function(docRef) {
+            data.id = docRef.id;
+            hideLoading();
+            btn.disabled = false;
+            btn.innerHTML = '<span>📨</span><span>Kirim Data Kunjungan</span>';
+
+            document.getElementById('mSum').innerHTML =
+                '<div class="s-row"><span class="s-lbl">👤 Nama</span><span class="s-val">'      + escHtml(data.nama)      + '</span></div>' +
+                '<div class="s-row"><span class="s-lbl">📱 No. HP</span><span class="s-val">'    + escHtml(data.hp)        + '</span></div>' +
+                '<div class="s-row"><span class="s-lbl">🏢 Instansi</span><span class="s-val">'  + escHtml(data.instansi)  + '</span></div>' +
+                '<div class="s-row"><span class="s-lbl">📋 Keperluan</span><span class="s-val">' + escHtml(data.keperluan) + '</span></div>' +
+                '<div class="s-row"><span class="s-lbl">📅 Tanggal</span><span class="s-val">'   + data.tanggal            + '</span></div>' +
+                '<div class="s-row"><span class="s-lbl">🕐 Waktu</span><span class="s-val">'     + data.waktu + ' WIB'     + '</span></div>';
+
+            document.getElementById('sigPrev').src = data.ttd;
+            document.getElementById('mSukses').classList.add('show');
+        })
+        .catch(function(err) {
+            hideLoading();
+            btn.disabled = false;
+            btn.innerHTML = '<span>📨</span><span>Kirim Data Kunjungan</span>';
+            console.error('Save error:', err);
+            showToast('Gagal menyimpan data! Periksa koneksi internet.', '❌');
+        });
+});
+
+function closeSukses() {
+    document.getElementById('mSukses').classList.remove('show');
+    document.getElementById('guestForm').reset();
+    clearSig();
+    document.getElementById('detailGrp').style.display = 'none';
+    fNama.className = ''; fHp.className = ''; fKep.className = '';
+    ['mNama','mHp','mKep','mTtd'].forEach(function(id) {
+        var el = document.getElementById(id);
+        el.textContent = ''; el.className = 'vmsg';
+    });
+    refreshBadge();
+    updateProg();
+    showToast('Data tamu berhasil disimpan ke cloud! ☁️', '🎉');
+}
+// ============================================================
+// ESCAPE HTML
+// ============================================================
+function escHtml(s) {
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+// ============================================================
+// RENDER TABLE
+// ============================================================
+function renderTable(data) {
+    var tbody  = document.getElementById('tblBody');
+    var noData = document.getElementById('noData');
+    var table  = document.getElementById('mainTable');
+    var info   = document.getElementById('tblInfo');
+
+    if (!data || data.length === 0) {
+        tbody.innerHTML      = '';
+        noData.style.display = 'block';
+        table.style.display  = 'none';
+        info.textContent     = '';
+        return;
+    }
+
+    noData.style.display = 'none';
+    table.style.display  = 'table';
+
+    var sorted = data.slice().reverse();
+    var html   = '';
+
+    for (var i = 0; i < sorted.length; i++) {
+        var g   = sorted[i];
+        var num = data.length - i;
+        html +=
+            '<tr>' +
+                '<td style="text-align:center;">' +
+                    '<div class="no-badge">' + num + '</div>' +
+                '</td>' +
+                '<td>' +
+                    '<div style="font-weight:700;font-size:12.5px;color:#003087;">' + escHtml(g.tanggal) + '</div>' +
+                    '<div style="color:#888;font-size:11px;margin-top:2px;">🕐 ' + escHtml(g.waktu) + ' WIB</div>' +
+                '</td>' +
+                '<td>' +
+                    '<div style="font-weight:600;font-size:13px;">' + escHtml(g.nama) + '</div>' +
+                '</td>' +
+                '<td style="font-size:12.5px;color:#555;">' + escHtml(g.hp) + '</td>' +
+                '<td style="font-size:12px;color:#666;">'   + escHtml(g.instansi) + '</td>' +
+                '<td><span class="kep-badge">'              + escHtml(g.keperluan) + '</span></td>' +
+                '<td>' +
+                    '<div class="act-btns">' +
+                        '<button class="btn-dtl" onclick="showDetail(\'' + g.id + '\')">👁 Detail</button>' +
+                        '<button class="btn-del" onclick="delGuest(\''   + g.id + '\')">🗑</button>' +
+                    '</div>' +
+                '</td>' +
+            '</tr>';
+    }
+
+    tbody.innerHTML  = html;
+    info.textContent = 'Menampilkan ' + data.length + ' dari ' + guests.length + ' data tamu';
+}
+
+// ============================================================
+// FILTER & SEARCH
+// ============================================================
+document.getElementById('searchInp').addEventListener('input',  filterTable);
+document.getElementById('fltKep').addEventListener('change',    filterTable);
+document.getElementById('fltTgl').addEventListener('change',    filterTable);
+
+function filterTable() {
+    var q = document.getElementById('searchInp').value.toLowerCase();
+    var k = document.getElementById('fltKep').value;
+    var t = document.getElementById('fltTgl').value;
+
+    var filtered = guests.filter(function(g) {
+        var qOk = !q || [g.nama, g.keperluan, g.instansi, g.hp]
+                        .some(function(f) {
+                            return String(f).toLowerCase().indexOf(q) !== -1;
+                        });
+        var kOk = !k || g.keperluan.indexOf(k) !== -1;
+        var tOk = true;
+        if (t) {
+            var d   = new Date(g.timestamp);
+            var str = d.getFullYear() + '-' +
+                      pad(d.getMonth() + 1) + '-' +
+                      pad(d.getDate());
+            tOk = str === t;
+        }
+        return qOk && kOk && tOk;
+    });
+
+    renderTable(filtered);
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function updateStats() {
+    var now   = new Date();
+    var today = now.toLocaleDateString('id-ID', {
+        day: '2-digit', month: '2-digit', year: 'numeric'
+    });
+
+    var startWeek = new Date(now);
+    startWeek.setDate(now.getDate() - now.getDay());
+    startWeek.setHours(0, 0, 0, 0);
+
+    var startMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    document.getElementById('sTotal').textContent  = guests.length;
+    document.getElementById('sHari').textContent   = guests.filter(function(g) {
+        return g.tanggal === today;
+    }).length;
+    document.getElementById('sMinggu').textContent = guests.filter(function(g) {
+        return new Date(g.timestamp) >= startWeek;
+    }).length;
+    document.getElementById('sBulan').textContent  = guests.filter(function(g) {
+        return new Date(g.timestamp) >= startMonth;
+    }).length;
+}
+
+// ============================================================
+// DETAIL MODAL
+// ============================================================
+function showDetail(id) {
+    var g = null;
+    for (var i = 0; i < guests.length; i++) {
+        if (guests[i].id === id) { g = guests[i]; break; }
+    }
+    if (!g) return;
+
+    document.getElementById('detailContent').innerHTML =
+        '<div class="m-summary" style="border-left-color:#FFD700;margin-bottom:14px;">' +
+            '<div class="s-row">' +
+                '<span class="s-lbl">👤 Nama</span>' +
+                '<span class="s-val">' + escHtml(g.nama) + '</span>' +
+            '</div>' +
+            '<div class="s-row">' +
+                '<span class="s-lbl">📱 No. HP</span>' +
+                '<span class="s-val">' + escHtml(g.hp) + '</span>' +
+            '</div>' +
+            '<div class="s-row">' +
+                '<span class="s-lbl">🏢 Instansi</span>' +
+                '<span class="s-val">' + escHtml(g.instansi) + '</span>' +
+            '</div>' +
+            '<div class="s-row">' +
+                '<span class="s-lbl">📋 Keperluan</span>' +
+                '<span class="s-val">' + escHtml(g.keperluan) + '</span>' +
+            '</div>' +
+            '<div class="s-row">' +
+                '<span class="s-lbl">📅 Tanggal</span>' +
+                '<span class="s-val">' + escHtml(g.tanggal) + '</span>' +
+            '</div>' +
+            '<div class="s-row">' +
+                '<span class="s-lbl">🕐 Waktu</span>' +
+                '<span class="s-val">' + escHtml(g.waktu) + ' WIB</span>' +
+            '</div>' +
+        '</div>' +
+        '<div class="sig-prev-wrap">' +
+            '<p>✍️ Tanda Tangan:</p>' +
+            '<img src="' + g.ttd + '" alt="TTD"' +
+            ' style="max-width:100%;max-height:110px;">' +
+        '</div>';
+
+    document.getElementById('mDetail').classList.add('show');
+}
+
+function closeDetail() {
+    document.getElementById('mDetail').classList.remove('show');
+}
+
+// ============================================================
+// DELETE SATU DATA DARI FIREBASE
+// ============================================================
+function delGuest(id) {
+    if (!confirm('Yakin ingin menghapus data tamu ini?')) return;
+
+    showLoading('Menghapus data...');
+
+    db.collection(COLLECTION).doc(id).delete()
+        .then(function() {
+            hideLoading();
+            showToast('Data berhasil dihapus!', '🗑️');
+        })
+        .catch(function(err) {
+            hideLoading();
+            console.error('Delete error:', err);
+            showToast('Gagal menghapus data!', '❌');
+        });
+}
+
+// ============================================================
+// HAPUS SEMUA DATA DARI FIREBASE
+// ============================================================
+function hapusSemua() {
+    if (guests.length === 0) {
+        showToast('Tidak ada data untuk dihapus!', '⚠️');
+        return;
+    }
+    if (!confirm('Yakin ingin menghapus SEMUA data tamu?\nData yang dihapus tidak dapat dikembalikan!')) return;
+
+    showLoading('Menghapus semua data...');
+
+    // Firebase tidak support delete collection langsung
+    // Harus hapus satu per satu
+    var batch   = db.batch();
+    var counter = 0;
+
+    db.collection(COLLECTION).get()
+        .then(function(snapshot) {
+            snapshot.forEach(function(doc) {
+                batch.delete(doc.ref);
+                counter++;
+            });
+            return batch.commit();
+        })
+        .then(function() {
+            hideLoading();
+            showToast('Semua ' + counter + ' data berhasil dihapus!', '🗑️');
+        })
+        .catch(function(err) {
+            hideLoading();
+            console.error('Delete all error:', err);
+            showToast('Gagal menghapus semua data!', '❌');
+        });
+}
+
+// ============================================================
+// EXPORT CSV
+// ============================================================
+function exportCSV() {
+    if (guests.length === 0) {
+        showToast('Belum ada data untuk diekspor!', '⚠️');
+        return;
+    }
+
+    var BOM     = '\uFEFF';
+    var headers = ['No','Tanggal','Waktu','Nama Lengkap','No. HP','Instansi/Asal','Keperluan'];
+    var rows    = guests.map(function(g, i) {
+        return [
+            i + 1,
+            '"' + g.tanggal   + '"',
+            '"' + g.waktu     + '"',
+            '"' + g.nama      + '"',
+            '"' + g.hp        + '"',
+            '"' + g.instansi  + '"',
+            '"' + g.keperluan + '"'
+        ].join(',');
+    });
+
+    var csv  = BOM + headers.join(',') + '\n' + rows.join('\n');
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    var url  = URL.createObjectURL(blob);
+    var now  = new Date();
+    var fn   = 'BukuTamu_SMKN1Subang_' +
+               now.getFullYear() +
+               pad(now.getMonth() + 1) +
+               pad(now.getDate()) + '.csv';
+
+    var a      = document.createElement('a');
+    a.href     = url;
+    a.download = fn;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('File CSV berhasil diunduh!', '📊');
+}
+
+// ============================================================
+// EXPORT PDF
+// ============================================================
+function exportPDF() {
+    if (guests.length === 0) {
+        showToast('Belum ada data untuk diekspor!', '⚠️');
+        return;
+    }
+
+    showToast('Menyiapkan PDF...', '📄', 5000);
+
+    try {
+        var doc   = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+        var pageW = doc.internal.pageSize.getWidth();
+        var pageH = doc.internal.pageSize.getHeight();
+
+        // HEADER BACKGROUND
+        doc.setFillColor(0, 48, 135);
+        doc.rect(0, 0, pageW, 40, 'F');
+
+        // Garis emas atas
+        doc.setFillColor(255, 215, 0);
+        doc.rect(0, 0, pageW, 3, 'F');
+
+        // Garis merah bawah header
+        doc.setFillColor(204, 0, 0);
+        doc.rect(0, 37, pageW, 3, 'F');
+
+        // LOGO placeholder
+        doc.setFillColor(255, 215, 0);
+        doc.roundedRect(8, 6, 28, 28, 3, 3, 'F');
+        doc.setTextColor(0, 48, 135);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7);
+        doc.text('SMKN 1', 22, 18, { align: 'center' });
+        doc.text('SUBANG', 22, 24, { align: 'center' });
+
+        // NAMA SEKOLAH
+        doc.setTextColor(255, 215, 0);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(17);
+        doc.text('SMK NEGERI 1 SUBANG', pageW / 2, 14, { align: 'center' });
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.text('Jl. Arief Rahman Hakim No.40, Subang, Jawa Barat 41211', pageW / 2, 21, { align: 'center' });
+        doc.text('Telp: (0260) 411295  |  Email: smkn1subang@gmail.com',    pageW / 2, 27, { align: 'center' });
+
+        // JUDUL
+        doc.setTextColor(200, 230, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text('LAPORAN BUKU TAMU DIGITAL', pageW / 2, 34, { align: 'center' });
+
+        // INFO CETAK
+        var now   = new Date();
+        var bulan = ['Januari','Februari','Maret','April','Mei','Juni',
+                     'Juli','Agustus','September','Oktober','November','Desember'];
+        var tgl   = now.getDate() + ' ' + bulan[now.getMonth()] + ' ' + now.getFullYear();
+        var jam   = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ' WIB';
+
+        doc.setFillColor(240, 245, 255);
+        doc.rect(8, 44, pageW - 16, 10, 'F');
+        doc.setDrawColor(200, 210, 240);
+        doc.rect(8, 44, pageW - 16, 10, 'S');
+        doc.setTextColor(50, 50, 120);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.text('Dicetak pada : ' + tgl + ', Pukul ' + jam, 13, 50.5);
+        doc.text('Total Data   : ' + guests.length + ' tamu',  pageW / 2, 50.5);
+
+        // TABEL
+        var cols = ['No','Tanggal','Waktu','Nama Lengkap','No. HP','Instansi / Asal','Keperluan'];
+        var rows = guests.map(function(g, i) {
+            return [i + 1, g.tanggal, g.waktu, g.nama, g.hp, g.instansi, g.keperluan];
+        });
+
+        doc.autoTable({
+            head : [cols],
+            body : rows,
+            startY: 57,
+            theme : 'grid',
+            styles: {
+                fontSize    : 9,
+                cellPadding : 4,
+                valign      : 'middle',
+                overflow    : 'linebreak',
+                textColor   : [40, 40, 40]
+            },
+            headStyles: {
+                fillColor  : [0, 48, 135],
+                textColor  : [255, 215, 0],
+                fontStyle  : 'bold',
+                halign     : 'center',
+                fontSize   : 9.5,
+                cellPadding: 5
+            },
+            columnStyles: {
+                0: { halign: 'center', cellWidth: 12  },
+                1: { halign: 'center', cellWidth: 26  },
+                2: { halign: 'center', cellWidth: 18  },
+                3: { cellWidth: 48 },
+                4: { halign: 'center', cellWidth: 30  },
+                5: { cellWidth: 44 },
+                6: { cellWidth: 'auto' }
+            },
+            alternateRowStyles: { fillColor: [240, 246, 255] },
+            didDrawPage: function(data) {
+                // FOOTER TIAP HALAMAN
+                doc.setFillColor(0, 48, 135);
+                doc.rect(0, pageH - 12, pageW, 12, 'F');
+                doc.setFillColor(255, 215, 0);
+                doc.rect(0, pageH - 12, pageW, 1.5, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8);
+                doc.text('SMK Negeri 1 Subang \u2014 Sistem Buku Tamu Digital', 14, pageH - 5);
+                doc.text('Halaman ' + data.pageNumber, pageW - 14, pageH - 5, { align: 'right' });
+            }
+        });
+
+        // TANDA TANGAN
+        var finalY = doc.lastAutoTable.finalY;
+        var sigY   = finalY + 12;
+
+        if (sigY + 55 < pageH - 15) {
+            doc.setDrawColor(0, 48, 135);
+            doc.setLineWidth(0.4);
+            doc.line(14, sigY, pageW - 14, sigY);
+
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9.5);
+            doc.setTextColor(0, 48, 135);
+            doc.text('Mengetahui,',   20,          sigY + 8);
+            doc.text('Petugas Piket,', pageW - 75, sigY + 8);
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            doc.setTextColor(60, 60, 60);
+            doc.text('Kepala SMK Negeri 1 Subang', 20,          sigY + 15);
+            doc.text('Operator Buku Tamu',          pageW - 75, sigY + 15);
+
+            doc.setDrawColor(180, 180, 180);
+            doc.setLineWidth(0.3);
+            doc.rect(20,          sigY + 17, 60, 25, 'S');
+            doc.rect(pageW - 75,  sigY + 17, 60, 25, 'S');
+
+            doc.line(20,         sigY + 44, 80,          sigY + 44);
+            doc.line(pageW - 75, sigY + 44, pageW - 15,  sigY + 44);
+
+            doc.setFontSize(8.5);
+            doc.text('(................................)', 50,          sigY + 49, { align: 'center' });
+            doc.text('NIP. ............................',  50,          sigY + 54, { align: 'center' });
+            doc.text('(................................)', pageW - 45,  sigY + 49, { align: 'center' });
+            doc.text('NIP. ............................',  pageW - 45,  sigY + 54, { align: 'center' });
+        }
+
+        // SIMPAN FILE
+        var fileName = 'BukuTamu_SMKN1Subang_' +
+                       now.getFullYear() +
+                       pad(now.getMonth() + 1) +
+                       pad(now.getDate()) + '.pdf';
+
+        doc.save(fileName);
+        showToast('PDF berhasil diunduh!', '📄');
+
+    } catch (err) {
+        console.error('PDF Error:', err);
+        showToast('Gagal membuat PDF!', '❌');
+    }
+}
+
+// ============================================================
+// INISIALISASI AWAL
+// ============================================================
+// Set border radius tab
+document.getElementById('pageForm').style.borderRadius    = '0 20px 20px 20px';
+document.getElementById('pageRiwayat').style.borderRadius = '20px 0 20px 20px';
+
+// Update progress awal
+updateProg();
+
+// Mulai koneksi Firebase & real-time listener
+startRealtime();
+
+</script>
+
+<script id="browser-icon-fix-script">
+(function(){
+    var icons = {
+'👨':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f468.svg",
+'✉':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2709.svg",
+'🏢':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f3e2.svg",
+'🔍':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f50d.svg",
+'⚠':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/26a0.svg",
+'⏳':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/23f3.svg",
+'📅':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4c5.svg",
+'👍':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f44d.svg",
+'📁':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4c1.svg",
+'✏':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/270f.svg",
+'🙋':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f64b.svg",
+'📭':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4ed.svg",
+'❌':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/274c.svg",
+'📱':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4f1.svg",
+'📌':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4cc.svg",
+'📊':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4ca.svg",
+'🎉':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f389.svg",
+'👁':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f441.svg",
+'📍':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4cd.svg",
+'☁':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2601.svg",
+'🤝':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f91d.svg",
+'📨':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4e8.svg",
+'✅':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2705.svg",
+'🗓':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f5d3.svg",
+'⚙':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2699.svg",
+'🗑':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f5d1.svg",
+'📖':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4d6.svg",
+'✓':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2713.svg",
+'🕐':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f550.svg",
+'📝':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4dd.svg",
+'✕':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2715.svg",
+'🏭':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f3ed.svg",
+'📄':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4c4.svg",
+'🏛':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f3db.svg",
+'🏫':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f3eb.svg",
+'📞':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4de.svg",
+'👤':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f464.svg",
+'📋':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4cb.svg",
+'👥':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f465.svg",
+'✍':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/270d.svg"
+    };
+    function makeIcon(ch){
+        var span=document.createElement('span');
+        span.className='compat-icon';
+        var img=document.createElement('img');
+        img.src=icons[ch]; img.alt=''; img.setAttribute('aria-hidden','true');
+        span.appendChild(img); return span;
+    }
+    function processNode(node){
+        if(!node || node.nodeType!==3 || !node.nodeValue) return;
+        var text=node.nodeValue, found=false, frag=document.createDocumentFragment(), i=0, j, ch;
+        for(j=0;j<text.length;j++){
+            ch=text.charAt(j);
+            /* Handle surrogate-pair emoji by testing known keys at this position. */
+            var hit=null;
+            for(var key in icons){ if(text.substr(j,key.length)===key){ hit=key; break; } }
+            if(hit){
+                found=true;
+                if(j>i) frag.appendChild(document.createTextNode(text.substring(i,j)));
+                frag.appendChild(makeIcon(hit));
+                j += hit.length-1; i=j+1;
+            }
+        }
+        if(found){
+            if(i<text.length) frag.appendChild(document.createTextNode(text.substring(i)));
+            if(node.parentNode) node.parentNode.replaceChild(frag,node);
+        }
+    }
+    function scan(root){
+        if(!root) return;
+        var nodes=root.getElementsByTagName ? root.getElementsByTagName('*') : [];
+        for(var i=0;i<nodes.length;i++){
+            var tag=nodes[i].tagName;
+            if(tag==='SCRIPT'||tag==='STYLE'||tag==='TEXTAREA'||tag==='INPUT') continue;
+            for(var c=0;c<nodes[i].childNodes.length;c++){
+                if(nodes[i].childNodes[c].nodeType===3) processNode(nodes[i].childNodes[c]);
+            }
+        }
+        if(root.nodeType===3) processNode(root);
+    }
+    function start(){
+        scan(document.body);
+        if(window.MutationObserver){
+            var obs=new MutationObserver(function(list){
+                for(var i=0;i<list.length;i++){
+                    var m=list[i];
+                    if(m.type==='childList'){
+                        for(var j=0;j<m.addedNodes.length;j++) scan(m.addedNodes[j]);
+                    } else if(m.type==='characterData') processNode(m.target);
+                }
+            });
+            obs.observe(document.body,{childList:true,subtree:true,characterData:true});
+        }
+    }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start); else start();
+})();
+</script>
 </body>
 </html>
