@@ -429,63 +429,12 @@
             .tab-btn { padding: 10px 14px; font-size: 12px; }
             .header-right { display: none; }
         }
-
-        /* ============================================================
-           COMPATIBLE ICONS
-           Menghindari emoji agar tampil di browser lama.
-           ============================================================ */
-        .ico {
-            display: inline-flex;
-            width: 1.25em;
-            height: 1.25em;
-            align-items: center;
-            justify-content: center;
-            vertical-align: -0.15em;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 0.95em;
-            font-weight: 700;
-            line-height: 1;
-            flex-shrink: 0;
-        }
-        .ico-user:before { content: "\25CF"; }
-        .ico-phone:before { content: "\260E"; }
-        .ico-building:before { content: "\25A3"; }
-        .ico-list:before { content: "\2630"; }
-        .ico-doc:before { content: "\25A4"; }
-        .ico-pencil:before { content: "\270E"; }
-        .ico-folder:before { content: "\25A1"; }
-        .ico-handshake:before { content: "\2194"; }
-        .ico-factory:before { content: "\2699"; }
-        .ico-search:before { content: "\2315"; }
-        .ico-pin:before { content: "\2022"; }
-        .ico-sign:before { content: "\270D"; }
-        .ico-trash:before { content: "\25A0"; }
-        .ico-send:before { content: "\27A4"; }
-        .ico-check:before { content: "\2713"; }
-        .ico-clock:before { content: "\25F7"; }
-        .ico-calendar:before { content: "\25A6"; }
-        .ico-chart:before { content: "\2588"; }
-        .ico-users:before { content: "\2637"; }
-        .ico-school:before { content: "\2302"; }
-        .ico-info:before { content: "\24D8"; }
-        .ico-warning:before { content: "\26A0"; }
-        .ico-close:before { content: "\00D7"; }
-        .ico-pdf:before { content: "\25A4"; }
-        .ico-cloud:before { content: "\2601"; }
-        .ico-home:before { content: "\2302"; }
-        .ico-star:before { content: "\2605"; }
-        .ico-arrow:before { content: "\25B6"; }
-        .ico-calendar2:before { content: "\25A6"; }
-        .ico-report:before { content: "\2261"; }
-        .ico-book:before { content: "\25A4"; }
-
-        /* Icon warna agar tetap menyatu dengan desain */
-        .ico-gold { color: #FFD700; }
-        .ico-blue { color: #003087; }
-        .ico-green { color: #43a047; }
-        .ico-red { color: #CC0000; }
-
     </style>
+
+<style id="browser-icon-fix">
+.compat-icon{display:inline-block;width:1.15em;height:1.15em;vertical-align:-0.2em;line-height:1;object-fit:contain;}
+.compat-icon img{display:block;width:100%;height:100%;object-fit:contain;}
+</style>
 </head>
 <body>
 
@@ -504,10 +453,10 @@
 <div class="tabs-wrapper">
     <div class="tab-buttons">
         <button class="tab-btn active" onclick="switchTab('form')" id="btnForm">
-            <span class="ico ico-pencil"></span> Isi Buku Tamu
+            📝 Isi Buku Tamu
         </button>
         <button class="tab-btn" onclick="switchTab('riwayat')" id="btnRiwayat">
-            <span class="ico ico-list"></span> Riwayat Tamu
+            📋 Riwayat Tamu
             <span class="tab-badge" id="tabBadge">0</span>
         </button>
     </div>
@@ -518,19 +467,19 @@
             <div class="logo-wrap">
                 <!-- GANTI src="logo.png" dengan path logo Anda -->
                 <img src="logo.png" alt="Logo SMKN 1 Subang"
-                     onerror="this.outerHTML='<span style=&quot;font-size:36px&quot;><span class="ico ico-school" style="font-size:36px;"></span></span>'">
+                     onerror="this.outerHTML='<span style=&quot;font-size:36px&quot;>🏫</span>'">
             </div>
             <div class="school-info">
                 <h1>SMK NEGERI 1 SUBANG</h1>
                 <div class="tagline">Cerdas, Terampil, dan Berkarakter</div>
                 <div class="contact">
-                    <span class="ico ico-pin"></span> Jl. Arief Rahman Hakim No.40, Subang, Jawa Barat 41211<br>
-                    <span class="ico ico-phone"></span> (0260) 411295 &nbsp;|&nbsp; <span class="ico">@</span> smkn1subang@gmail.com
+                    📍 Jl. Arief Rahman Hakim No.40, Subang, Jawa Barat 41211<br>
+                    📞 (0260) 411295 &nbsp;|&nbsp; ✉️ smkn1subang@gmail.com
                 </div>
             </div>
             <div class="header-right">
                 <div class="dt-live" id="dt1">--</div>
-                <div class="vc-badge" id="vcBadge"><span class="ico ico-users"></span> Tamu ke-1</div>
+                <div class="vc-badge" id="vcBadge">🙋 Tamu ke-1</div>
                 <div class="conn-status loading" id="connStatus">
                     <div class="conn-dot"></div>
                     <span id="connText">Menghubungkan...</span>
@@ -540,7 +489,7 @@
 
         <div class="form-area">
             <div class="sec-title">
-                <h2><span class="ico ico-book"></span> Buku Tamu Digital</h2>
+                <h2>📖 Buku Tamu Digital</h2>
                 <div class="title-line"></div>
             </div>
             <p class="form-desc">
@@ -554,12 +503,12 @@
             <form id="guestForm" novalidate autocomplete="off">
                 <div class="frow">
                     <div class="fg">
-                        <label><span class="ico ico-user"></span> Nama Lengkap <span class="req">*</span></label>
+                        <label>👤 Nama Lengkap <span class="req">*</span></label>
                         <input type="text" id="fNama" placeholder="Contoh: Budi Santoso">
                         <div class="vmsg" id="mNama"></div>
                     </div>
                     <div class="fg">
-                        <label><span class="ico ico-phone"></span> Nomor HP / WA <span class="req">*</span></label>
+                        <label>📱 Nomor HP / WA <span class="req">*</span></label>
                         <input type="tel" id="fHp" placeholder="Contoh: 08123456789" maxlength="15">
                         <div class="vmsg" id="mHp"></div>
                     </div>
@@ -567,50 +516,50 @@
 
                 <div class="frow">
                     <div class="fg">
-                        <label><span class="ico ico-building"></span> Instansi / Asal</label>
+                        <label>🏢 Instansi / Asal</label>
                         <input type="text" id="fInstansi" placeholder="Nama instansi atau asal daerah">
                     </div>
                     <div class="fg">
-                        <label><span class="ico ico-list"></span> Keperluan <span class="req">*</span></label>
+                        <label>📋 Keperluan <span class="req">*</span></label>
                         <select id="fKep">
                             <option value="">-- Pilih Keperluan --</option>
                             <option value="Bertemu Kepala Sekolah">🏛️ Bertemu Kepala Sekolah</option>
-                            <option value="Bertemu Guru/Wali Kelas"><span class="ico ico-user"></span> Bertemu Guru / Wali Kelas</option>
-                            <option value="Urusan Administrasi"><span class="ico ico-doc"></span> Urusan Administrasi</option>
-                            <option value="Pendaftaran Siswa Baru"><span class="ico ico-pencil"></span> Pendaftaran Siswa Baru</option>
-                            <option value="Pengambilan Dokumen"><span class="ico ico-folder"></span> Pengambilan Dokumen</option>
-                            <option value="Rapat / Pertemuan"><span class="ico ico-handshake"></span> Rapat / Pertemuan</option>
-                            <option value="Kunjungan Industri"><span class="ico ico-factory"></span> Kunjungan Industri / PKL</option>
-                            <option value="Survei / Penelitian"><span class="ico ico-search"></span> Survei / Penelitian</option>
-                            <option value="Lain-lain"><span class="ico ico-pin"></span> Lain-lain</option>
+                            <option value="Bertemu Guru/Wali Kelas">👨‍🏫 Bertemu Guru / Wali Kelas</option>
+                            <option value="Urusan Administrasi">📄 Urusan Administrasi</option>
+                            <option value="Pendaftaran Siswa Baru">✏️ Pendaftaran Siswa Baru</option>
+                            <option value="Pengambilan Dokumen">📁 Pengambilan Dokumen</option>
+                            <option value="Rapat / Pertemuan">🤝 Rapat / Pertemuan</option>
+                            <option value="Kunjungan Industri">🏭 Kunjungan Industri / PKL</option>
+                            <option value="Survei / Penelitian">🔍 Survei / Penelitian</option>
+                            <option value="Lain-lain">📌 Lain-lain</option>
                         </select>
                         <div class="vmsg" id="mKep"></div>
                     </div>
                 </div>
 
                 <div class="fg full" id="detailGrp" style="display:none;">
-                    <label><span class="ico ico-pencil"></span> Keterangan Keperluan <span class="req">*</span></label>
+                    <label>✏️ Keterangan Keperluan <span class="req">*</span></label>
                     <textarea id="fDetail" placeholder="Jelaskan keperluan Anda..."></textarea>
                 </div>
 
                 <div style="margin-bottom:18px;">
-                    <div class="sig-lbl"><span class="ico ico-sign"></span> Tanda Tangan <span class="req">*</span></div>
+                    <div class="sig-lbl">✍️ Tanda Tangan <span class="req">*</span></div>
                     <div class="sig-box" id="sigBox">
                         <canvas id="sigCanvas"></canvas>
                         <div class="sig-hint" id="sigHint">
-                            <div class="hi"><span class="ico ico-sign" style="font-size:28px;"></span></div>
+                            <div class="hi">✍️</div>
                             <p>Klik atau sentuh di sini untuk membuat tanda tangan</p>
                         </div>
                     </div>
                     <div class="sig-foot">
-                        <button type="button" class="btn-clr-sig" onclick="clearSig()"><span class="ico ico-trash"></span> Hapus TTD</button>
-                        <div class="sig-ok-tag" id="sigOk"><span class="ico ico-check"></span> Tanda tangan berhasil</div>
+                        <button type="button" class="btn-clr-sig" onclick="clearSig()">🗑️ Hapus TTD</button>
+                        <div class="sig-ok-tag" id="sigOk">✅ Tanda tangan berhasil</div>
                     </div>
                     <div class="vmsg" id="mTtd"></div>
                 </div>
 
                 <button type="submit" class="btn-submit" id="btnSubmit">
-                    <span><span class="ico ico-send"></span><span>Kirim Data Kunjungan</span>
+                    <span>📨</span><span>Kirim Data Kunjungan</span>
                 </button>
             </form>
         </div>
@@ -622,12 +571,12 @@
             <div class="logo-wrap">
                 <!-- GANTI src="logo.png" dengan path logo Anda -->
                 <img src="logo.png" alt="Logo SMKN 1 Subang"
-                     onerror="this.outerHTML='<span style=&quot;font-size:36px&quot;><span class="ico ico-school" style="font-size:36px;"></span></span>'">
+                     onerror="this.outerHTML='<span style=&quot;font-size:36px&quot;>🏫</span>'">
             </div>
             <div class="school-info">
                 <h1>SMK NEGERI 1 SUBANG</h1>
                 <div class="tagline">Cerdas, Terampil, dan Berkarakter</div>
-                <div class="contact"><span class="ico ico-report"></span> Laporan & Riwayat Data Tamu Sekolah</div>
+                <div class="contact">📊 Laporan & Riwayat Data Tamu Sekolah</div>
             </div>
             <div class="header-right">
                 <div class="dt-live" id="dt2">--</div>
@@ -636,16 +585,16 @@
 
         <div class="riwayat-area">
             <div class="stats-grid">
-                <div class="stat-card"><div class="stat-icon"><span class="ico ico-users"></span></div><div class="stat-num" id="sTotal">0</div><div class="stat-lbl">Total Tamu</div></div>
-                <div class="stat-card"><div class="stat-icon"><span class="ico ico-calendar"></span></div><div class="stat-num" id="sHari">0</div><div class="stat-lbl">Hari Ini</div></div>
-                <div class="stat-card"><div class="stat-icon"><span class="ico ico-calendar2"></span></div><div class="stat-num" id="sMinggu">0</div><div class="stat-lbl">Minggu Ini</div></div>
-                <div class="stat-card"><div class="stat-icon"><span class="ico ico-chart"></span></div><div class="stat-num" id="sBulan">0</div><div class="stat-lbl">Bulan Ini</div></div>
+                <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-num" id="sTotal">0</div><div class="stat-lbl">Total Tamu</div></div>
+                <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-num" id="sHari">0</div><div class="stat-lbl">Hari Ini</div></div>
+                <div class="stat-card"><div class="stat-icon">🗓️</div><div class="stat-num" id="sMinggu">0</div><div class="stat-lbl">Minggu Ini</div></div>
+                <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-num" id="sBulan">0</div><div class="stat-lbl">Bulan Ini</div></div>
             </div>
 
             <div class="toolbar">
-                <input type="text" class="search-inp" id="searchInp" placeholder="Cari nama, HP, keperluan...">
+                <input type="text" class="search-inp" id="searchInp" placeholder="🔍 Cari nama, HP, keperluan...">
                 <select class="flt-sel" id="fltKep">
-                    <option value="">Semua Keperluan</option>
+                    <option value="">📋 Semua Keperluan</option>
                     <option value="Bertemu Kepala Sekolah">Kepala Sekolah</option>
                     <option value="Bertemu Guru/Wali Kelas">Guru / Wali Kelas</option>
                     <option value="Urusan Administrasi">Administrasi</option>
@@ -657,9 +606,9 @@
                     <option value="Lain-lain">Lain-lain</option>
                 </select>
                 <input type="date" class="flt-sel" id="fltTgl">
-                <button class="btn-pdf" onclick="exportPDF()"><span class="ico ico-pdf"></span> Export PDF</button>
-                <button class="btn-csv" onclick="exportCSV()"><span class="ico ico-chart"></span> Export CSV</button>
-                <button class="btn-del-all" onclick="hapusSemua()"><span class="ico ico-trash"></span> Hapus Semua</button>
+                <button class="btn-pdf" onclick="exportPDF()">📄 Export PDF</button>
+                <button class="btn-csv" onclick="exportCSV()">📊 Export CSV</button>
+                <button class="btn-del-all" onclick="hapusSemua()">🗑️ Hapus Semua</button>
             </div>
 
             <div class="tbl-wrap">
@@ -678,7 +627,7 @@
                     <tbody id="tblBody"></tbody>
                 </table>
                 <div class="no-data" id="noData">
-                    <div class="nd-icon"><span class="ico ico-folder"></span></div>
+                    <div class="nd-icon">📭</div>
                     <p>Belum ada data tamu</p>
                     <small>Data tamu akan tampil di sini</small>
                 </div>
@@ -691,25 +640,25 @@
 <!-- MODAL SUKSES -->
 <div class="modal-ov" id="mSukses">
     <div class="modal-box">
-        <div class="modal-ico"><span class="ico ico-check"></span></div>
+        <div class="modal-ico">✅</div>
         <h3>Terima Kasih!</h3>
-        <p>Data kunjungan Anda berhasil dicatat.<br>Selamat datang di <strong>SMK Negeri 1 Subang</strong>! </p>
+        <p>Data kunjungan Anda berhasil dicatat.<br>Selamat datang di <strong>SMK Negeri 1 Subang</strong>! 🎉</p>
         <div class="m-summary" id="mSum"></div>
         <div class="sig-prev-wrap">
-            <p><span class="ico ico-sign"></span> Tanda Tangan Anda:</p>
+            <p>✍️ Tanda Tangan Anda:</p>
             <img id="sigPrev" src="" alt="TTD">
         </div>
-        <button class="btn-ok" onclick="closeSukses()"><span class="ico ico-check"></span> Oke, Terima Kasih!</button>
+        <button class="btn-ok" onclick="closeSukses()">👍 Oke, Terima Kasih!</button>
     </div>
 </div>
 
 <!-- MODAL DETAIL -->
 <div class="modal-ov" id="mDetail">
     <div class="modal-box left">
-        <h3 style="margin-bottom:15px;padding-bottom:12px;border-bottom:2px solid #e8eeff;"><span class="ico ico-list"></span> Detail Data Tamu</h3>
+        <h3 style="margin-bottom:15px;padding-bottom:12px;border-bottom:2px solid #e8eeff;">📋 Detail Data Tamu</h3>
         <div id="detailContent"></div>
         <div style="text-align:center;margin-top:15px;">
-            <button class="btn-ok" onclick="closeDetail()"><span class="ico ico-close"></span> Tutup</button>
+            <button class="btn-ok" onclick="closeDetail()">✕ Tutup</button>
         </div>
     </div>
 </div>
@@ -775,13 +724,13 @@ function loadFromFirebase() {
           refreshBadge();
           renderTable(guests);
           updateStats();
-          showToast('Data berhasil dimuat (' + guests.length + ' tamu)', 'Cloud');
+          showToast('Data berhasil dimuat (' + guests.length + ' tamu)', '☁️');
       })
       .catch(function(err) {
           hideLoading();
           setConn('offline', 'Koneksi Gagal');
           console.error('Firebase error:', err);
-          showToast('Gagal memuat data. Periksa koneksi!', 'X');
+          showToast('Gagal memuat data. Periksa koneksi!', '❌');
       });
 }
 
@@ -827,7 +776,7 @@ function hideLoading() {
 // ============================================================
 var toastTimer = null;
 function showToast(msg, ico, dur) {
-    ico = ico || 'OK'; dur = dur || 3200;
+    ico = ico || '✅'; dur = dur || 3200;
     clearTimeout(toastTimer);
     document.getElementById('toastMsg').textContent = msg;
     document.getElementById('toastIco').textContent = ico;
@@ -863,7 +812,7 @@ tickTime();
 function refreshBadge() {
     var vc = document.getElementById('vcBadge');
     var tb = document.getElementById('tabBadge');
-    if (vc) vc.textContent = 'Tamu ke-' + (guests.length + 1);
+    if (vc) vc.textContent = '🙋 Tamu ke-' + (guests.length + 1);
     if (tb) tb.textContent = guests.length;
 }
 
@@ -898,7 +847,7 @@ function switchTab(tab) {
 // ============================================================
 // PROGRESS
 // ============================================================
-var PROG = ['Mulai isi form','25% - Lanjutkan!','50% - Setengah jalan!','75% - Hampir selesai!','100% - Siap dikirim! !'];
+var PROG = ['Mulai isi form','25% - Lanjutkan!','50% - Setengah jalan!','75% - Hampir selesai!','100% - Siap dikirim! 🎉'];
 
 function updateProg() {
     var s = 0;
@@ -925,8 +874,8 @@ var fKep  = document.getElementById('fKep');
 fNama.addEventListener('input', function() {
     var v = fNama.value.trim(), m = document.getElementById('mNama');
     if (!v)          { vMsg(fNama, m, '', '');                          fNama.className = ''; }
-    else if (v.length < 3) { vMsg(fNama, m, '! Minimal 3 karakter', 'err'); fNama.className = 'err'; }
-    else             { vMsg(fNama, m, 'OK Nama valid', 'ok');           fNama.className = 'ok'; }
+    else if (v.length < 3) { vMsg(fNama, m, '⚠ Minimal 3 karakter', 'err'); fNama.className = 'err'; }
+    else             { vMsg(fNama, m, '✓ Nama valid', 'ok');           fNama.className = 'ok'; }
     updateProg();
 });
 
@@ -934,15 +883,15 @@ fHp.addEventListener('input', function() {
     fHp.value = fHp.value.replace(/\D/g, '');
     var v = fHp.value, m = document.getElementById('mHp');
     if (!v)                     { vMsg(fHp, m, '', '');                                  fHp.className = ''; }
-    else if (v.length < 10 || v.length > 15) { vMsg(fHp, m, '! Nomor tidak valid', 'err'); fHp.className = 'err'; }
-    else                        { vMsg(fHp, m, 'OK Nomor valid', 'ok');                  fHp.className = 'ok'; }
+    else if (v.length < 10 || v.length > 15) { vMsg(fHp, m, '⚠ Nomor tidak valid', 'err'); fHp.className = 'err'; }
+    else                        { vMsg(fHp, m, '✓ Nomor valid', 'ok');                  fHp.className = 'ok'; }
     updateProg();
 });
 
 fKep.addEventListener('change', function() {
     var v = fKep.value, m = document.getElementById('mKep');
     document.getElementById('detailGrp').style.display = v === 'Lain-lain' ? 'block' : 'none';
-    if (v) { vMsg(fKep, m, 'OK Keperluan dipilih', 'ok'); fKep.className = 'ok'; }
+    if (v) { vMsg(fKep, m, '✓ Keperluan dipilih', 'ok'); fKep.className = 'ok'; }
     else   { vMsg(fKep, m, '', '');                       fKep.className = ''; }
     updateProg();
 });
@@ -989,7 +938,7 @@ function onSigDraw() {
         document.getElementById('sigHint').style.opacity = '0';
         document.getElementById('sigBox').classList.add('signed');
         document.getElementById('sigOk').classList.add('show');
-        document.getElementById('mTtd').textContent = 'OK Tanda tangan berhasil';
+        document.getElementById('mTtd').textContent = '✓ Tanda tangan berhasil';
         document.getElementById('mTtd').className   = 'vmsg ok';
         updateProg();
     }
@@ -1020,11 +969,11 @@ document.getElementById('guestForm').addEventListener('submit', function(e) {
     var instansi = document.getElementById('fInstansi').value.trim();
     var ok = true;
 
-    if (nama.length < 3) { vMsg(fNama, document.getElementById('mNama'), '! Nama wajib diisi', 'err'); fNama.className = 'err'; ok = false; }
-    if (hp.length < 10)  { vMsg(fHp,   document.getElementById('mHp'),   '! Nomor HP wajib diisi', 'err'); fHp.className = 'err'; ok = false; }
-    if (!kep)            { vMsg(fKep,  document.getElementById('mKep'),   '! Keperluan wajib dipilih', 'err'); fKep.className = 'err'; ok = false; }
-    if (kep === 'Lain-lain' && !detail) { showToast('Mohon isi keterangan keperluan!', '!'); ok = false; }
-    if (!sigDrawn) { document.getElementById('mTtd').textContent = '! Tanda tangan wajib diisi'; document.getElementById('mTtd').className = 'vmsg err'; ok = false; }
+    if (nama.length < 3) { vMsg(fNama, document.getElementById('mNama'), '⚠ Nama wajib diisi', 'err'); fNama.className = 'err'; ok = false; }
+    if (hp.length < 10)  { vMsg(fHp,   document.getElementById('mHp'),   '⚠ Nomor HP wajib diisi', 'err'); fHp.className = 'err'; ok = false; }
+    if (!kep)            { vMsg(fKep,  document.getElementById('mKep'),   '⚠ Keperluan wajib dipilih', 'err'); fKep.className = 'err'; ok = false; }
+    if (kep === 'Lain-lain' && !detail) { showToast('Mohon isi keterangan keperluan!', '⚠️'); ok = false; }
+    if (!sigDrawn) { document.getElementById('mTtd').textContent = '⚠ Tanda tangan wajib diisi'; document.getElementById('mTtd').className = 'vmsg err'; ok = false; }
     if (!ok) return;
 
     var now      = new Date();
@@ -1044,7 +993,7 @@ document.getElementById('guestForm').addEventListener('submit', function(e) {
     // Disable tombol submit
     var btn = document.getElementById('btnSubmit');
     btn.disabled = true;
-    btn.innerHTML = '<span>...</span><span>Menyimpan...</span>';
+    btn.innerHTML = '<span>⏳</span><span>Menyimpan...</span>';
     showLoading('Menyimpan data ke database...');
 
     // SIMPAN KE FIREBASE
@@ -1053,15 +1002,15 @@ document.getElementById('guestForm').addEventListener('submit', function(e) {
             data.id = docRef.id;
             hideLoading();
             btn.disabled = false;
-            btn.innerHTML = '<span><span class="ico ico-send"></span><span>Kirim Data Kunjungan</span>';
+            btn.innerHTML = '<span>📨</span><span>Kirim Data Kunjungan</span>';
 
             document.getElementById('mSum').innerHTML =
                 '<div class="s-row"><span class="s-lbl">👤 Nama</span><span class="s-val">'      + escHtml(data.nama)      + '</span></div>' +
                 '<div class="s-row"><span class="s-lbl">📱 No. HP</span><span class="s-val">'    + escHtml(data.hp)        + '</span></div>' +
                 '<div class="s-row"><span class="s-lbl">🏢 Instansi</span><span class="s-val">'  + escHtml(data.instansi)  + '</span></div>' +
-                '<div class="s-row"><span class="s-lbl"><span class="ico ico-list"></span> Keperluan</span><span class="s-val">' + escHtml(data.keperluan) + '</span></div>' +
+                '<div class="s-row"><span class="s-lbl">📋 Keperluan</span><span class="s-val">' + escHtml(data.keperluan) + '</span></div>' +
                 '<div class="s-row"><span class="s-lbl">📅 Tanggal</span><span class="s-val">'   + data.tanggal            + '</span></div>' +
-                '<div class="s-row"><span class="s-lbl">Time Waktu</span><span class="s-val">'     + data.waktu + ' WIB'     + '</span></div>';
+                '<div class="s-row"><span class="s-lbl">🕐 Waktu</span><span class="s-val">'     + data.waktu + ' WIB'     + '</span></div>';
 
             document.getElementById('sigPrev').src = data.ttd;
             document.getElementById('mSukses').classList.add('show');
@@ -1069,9 +1018,9 @@ document.getElementById('guestForm').addEventListener('submit', function(e) {
         .catch(function(err) {
             hideLoading();
             btn.disabled = false;
-            btn.innerHTML = '<span><span class="ico ico-send"></span><span>Kirim Data Kunjungan</span>';
+            btn.innerHTML = '<span>📨</span><span>Kirim Data Kunjungan</span>';
             console.error('Save error:', err);
-            showToast('Gagal menyimpan data! Periksa koneksi internet.', 'X');
+            showToast('Gagal menyimpan data! Periksa koneksi internet.', '❌');
         });
 });
 
@@ -1087,7 +1036,7 @@ function closeSukses() {
     });
     refreshBadge();
     updateProg();
-    showToast('Data tamu berhasil disimpan ke cloud! Cloud', '!');
+    showToast('Data tamu berhasil disimpan ke cloud! ☁️', '🎉');
 }
 // ============================================================
 // ESCAPE HTML
@@ -1133,7 +1082,7 @@ function renderTable(data) {
                 '</td>' +
                 '<td>' +
                     '<div style="font-weight:700;font-size:12.5px;color:#003087;">' + escHtml(g.tanggal) + '</div>' +
-                    '<div style="color:#888;font-size:11px;margin-top:2px;">Time ' + escHtml(g.waktu) + ' WIB</div>' +
+                    '<div style="color:#888;font-size:11px;margin-top:2px;">🕐 ' + escHtml(g.waktu) + ' WIB</div>' +
                 '</td>' +
                 '<td>' +
                     '<div style="font-weight:600;font-size:13px;">' + escHtml(g.nama) + '</div>' +
@@ -1238,7 +1187,7 @@ function showDetail(id) {
                 '<span class="s-val">' + escHtml(g.instansi) + '</span>' +
             '</div>' +
             '<div class="s-row">' +
-                '<span class="s-lbl"><span class="ico ico-list"></span> Keperluan</span>' +
+                '<span class="s-lbl">📋 Keperluan</span>' +
                 '<span class="s-val">' + escHtml(g.keperluan) + '</span>' +
             '</div>' +
             '<div class="s-row">' +
@@ -1246,12 +1195,12 @@ function showDetail(id) {
                 '<span class="s-val">' + escHtml(g.tanggal) + '</span>' +
             '</div>' +
             '<div class="s-row">' +
-                '<span class="s-lbl">Time Waktu</span>' +
+                '<span class="s-lbl">🕐 Waktu</span>' +
                 '<span class="s-val">' + escHtml(g.waktu) + ' WIB</span>' +
             '</div>' +
         '</div>' +
         '<div class="sig-prev-wrap">' +
-            '<p><span class="ico ico-sign"></span> Tanda Tangan:</p>' +
+            '<p>✍️ Tanda Tangan:</p>' +
             '<img src="' + g.ttd + '" alt="TTD"' +
             ' style="max-width:100%;max-height:110px;">' +
         '</div>';
@@ -1274,12 +1223,12 @@ function delGuest(id) {
     db.collection(COLLECTION).doc(id).delete()
         .then(function() {
             hideLoading();
-            showToast('Data berhasil dihapus!', 'DEL');
+            showToast('Data berhasil dihapus!', '🗑️');
         })
         .catch(function(err) {
             hideLoading();
             console.error('Delete error:', err);
-            showToast('Gagal menghapus data!', 'X');
+            showToast('Gagal menghapus data!', '❌');
         });
 }
 
@@ -1288,7 +1237,7 @@ function delGuest(id) {
 // ============================================================
 function hapusSemua() {
     if (guests.length === 0) {
-        showToast('Tidak ada data untuk dihapus!', '!');
+        showToast('Tidak ada data untuk dihapus!', '⚠️');
         return;
     }
     if (!confirm('Yakin ingin menghapus SEMUA data tamu?\nData yang dihapus tidak dapat dikembalikan!')) return;
@@ -1310,12 +1259,12 @@ function hapusSemua() {
         })
         .then(function() {
             hideLoading();
-            showToast('Semua ' + counter + ' data berhasil dihapus!', 'DEL');
+            showToast('Semua ' + counter + ' data berhasil dihapus!', '🗑️');
         })
         .catch(function(err) {
             hideLoading();
             console.error('Delete all error:', err);
-            showToast('Gagal menghapus semua data!', 'X');
+            showToast('Gagal menghapus semua data!', '❌');
         });
 }
 
@@ -1324,7 +1273,7 @@ function hapusSemua() {
 // ============================================================
 function exportCSV() {
     if (guests.length === 0) {
-        showToast('Belum ada data untuk diekspor!', '!');
+        showToast('Belum ada data untuk diekspor!', '⚠️');
         return;
     }
 
@@ -1358,7 +1307,7 @@ function exportCSV() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast('File CSV berhasil diunduh!', 'CSV');
+    showToast('File CSV berhasil diunduh!', '📊');
 }
 
 // ============================================================
@@ -1366,11 +1315,11 @@ function exportCSV() {
 // ============================================================
 function exportPDF() {
     if (guests.length === 0) {
-        showToast('Belum ada data untuk diekspor!', '!');
+        showToast('Belum ada data untuk diekspor!', '⚠️');
         return;
     }
 
-    showToast('Menyiapkan PDF...', 'PDF', 5000);
+    showToast('Menyiapkan PDF...', '📄', 5000);
 
     try {
         var doc   = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
@@ -1526,11 +1475,11 @@ function exportPDF() {
                        pad(now.getDate()) + '.pdf';
 
         doc.save(fileName);
-        showToast('PDF berhasil diunduh!', 'PDF');
+        showToast('PDF berhasil diunduh!', '📄');
 
     } catch (err) {
         console.error('PDF Error:', err);
-        showToast('Gagal membuat PDF!', 'X');
+        showToast('Gagal membuat PDF!', '❌');
     }
 }
 
@@ -1547,6 +1496,107 @@ updateProg();
 // Mulai koneksi Firebase & real-time listener
 startRealtime();
 
+</script>
+
+<script id="browser-icon-fix-script">
+(function(){
+    var icons = {
+'👨':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f468.svg",
+'✉':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2709.svg",
+'🏢':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f3e2.svg",
+'🔍':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f50d.svg",
+'⚠':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/26a0.svg",
+'⏳':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/23f3.svg",
+'📅':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4c5.svg",
+'👍':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f44d.svg",
+'📁':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4c1.svg",
+'✏':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/270f.svg",
+'🙋':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f64b.svg",
+'📭':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4ed.svg",
+'❌':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/274c.svg",
+'📱':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4f1.svg",
+'📌':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4cc.svg",
+'📊':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4ca.svg",
+'🎉':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f389.svg",
+'👁':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f441.svg",
+'📍':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4cd.svg",
+'☁':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2601.svg",
+'🤝':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f91d.svg",
+'📨':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4e8.svg",
+'✅':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2705.svg",
+'🗓':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f5d3.svg",
+'⚙':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2699.svg",
+'🗑':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f5d1.svg",
+'📖':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4d6.svg",
+'✓':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2713.svg",
+'🕐':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f550.svg",
+'📝':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4dd.svg",
+'✕':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/2715.svg",
+'🏭':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f3ed.svg",
+'📄':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4c4.svg",
+'🏛':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f3db.svg",
+'🏫':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f3eb.svg",
+'📞':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4de.svg",
+'👤':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f464.svg",
+'📋':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f4cb.svg",
+'👥':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f465.svg",
+'✍':"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/270d.svg"
+    };
+    function makeIcon(ch){
+        var span=document.createElement('span');
+        span.className='compat-icon';
+        var img=document.createElement('img');
+        img.src=icons[ch]; img.alt=''; img.setAttribute('aria-hidden','true');
+        span.appendChild(img); return span;
+    }
+    function processNode(node){
+        if(!node || node.nodeType!==3 || !node.nodeValue) return;
+        var text=node.nodeValue, found=false, frag=document.createDocumentFragment(), i=0, j, ch;
+        for(j=0;j<text.length;j++){
+            ch=text.charAt(j);
+            /* Handle surrogate-pair emoji by testing known keys at this position. */
+            var hit=null;
+            for(var key in icons){ if(text.substr(j,key.length)===key){ hit=key; break; } }
+            if(hit){
+                found=true;
+                if(j>i) frag.appendChild(document.createTextNode(text.substring(i,j)));
+                frag.appendChild(makeIcon(hit));
+                j += hit.length-1; i=j+1;
+            }
+        }
+        if(found){
+            if(i<text.length) frag.appendChild(document.createTextNode(text.substring(i)));
+            if(node.parentNode) node.parentNode.replaceChild(frag,node);
+        }
+    }
+    function scan(root){
+        if(!root) return;
+        var nodes=root.getElementsByTagName ? root.getElementsByTagName('*') : [];
+        for(var i=0;i<nodes.length;i++){
+            var tag=nodes[i].tagName;
+            if(tag==='SCRIPT'||tag==='STYLE'||tag==='TEXTAREA'||tag==='INPUT') continue;
+            for(var c=0;c<nodes[i].childNodes.length;c++){
+                if(nodes[i].childNodes[c].nodeType===3) processNode(nodes[i].childNodes[c]);
+            }
+        }
+        if(root.nodeType===3) processNode(root);
+    }
+    function start(){
+        scan(document.body);
+        if(window.MutationObserver){
+            var obs=new MutationObserver(function(list){
+                for(var i=0;i<list.length;i++){
+                    var m=list[i];
+                    if(m.type==='childList'){
+                        for(var j=0;j<m.addedNodes.length;j++) scan(m.addedNodes[j]);
+                    } else if(m.type==='characterData') processNode(m.target);
+                }
+            });
+            obs.observe(document.body,{childList:true,subtree:true,characterData:true});
+        }
+    }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start); else start();
+})();
 </script>
 </body>
 </html>
