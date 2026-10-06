@@ -449,17 +449,6 @@
 <style id="browser-icon-fix">
 .compat-icon{display:inline-block;width:1.15em;height:1.15em;vertical-align:-0.2em;line-height:1;object-fit:contain;}
 .compat-icon img{display:block;width:100%;height:100%;object-fit:contain;}
-    /* TOUCHSCREEN KEYBOARD FIX — tidak mengubah tampilan */
-    @media (pointer: coarse) {
-        input, select, textarea, button {
-            touch-action: manipulation;
-        }
-
-        input, select, textarea {
-            scroll-margin-top: 24px;
-            scroll-margin-bottom: 140px;
-        }
-    }
 </style>
 </head>
 <body>
@@ -530,12 +519,12 @@
                 <div class="frow">
                     <div class="fg">
                         <label>👤 Nama Lengkap <span class="req">*</span></label>
-                        <input type="text" id="fNama" placeholder="Contoh: Budi Santoso" inputmode="text" autocomplete="name" autocapitalize="words" enterkeyhint="next">
+                        <input type="text" id="fNama" placeholder="Contoh: Budi Santoso" inputmode="text" autocomplete="name" enterkeyhint="next">
                         <div class="vmsg" id="mNama"></div>
                     </div>
                     <div class="fg">
                         <label>📱 Nomor HP / WA <span class="req">*</span></label>
-                        <input type="tel" id="fHp" placeholder="Contoh: 08123456789" maxlength="15" inputmode="numeric" autocomplete="tel" enterkeyhint="next">
+                        <input type="tel" id="fHp" placeholder="Contoh: 08123456789" maxlength="15" inputmode="tel" autocomplete="tel" enterkeyhint="next">
                         <div class="vmsg" id="mHp"></div>
                     </div>
                 </div>
@@ -688,43 +677,6 @@
         </div>
     </div>
 </div>
-
-<script>
-/* TOUCHSCREEN KEYBOARD FIX
-   Menjaga field aktif tetap terlihat saat keyboard virtual muncul.
-   Tidak mengubah layout/tampilan desktop. */
-(function () {
-    var touchDevice = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-    if (!touchDevice) return;
-
-    function keepFocusedFieldVisible(el) {
-        if (!el || !el.matches('input, select, textarea')) return;
-
-        window.setTimeout(function () {
-            try {
-                el.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
-            } catch (e) {
-                el.scrollIntoView();
-            }
-        }, 180);
-    }
-
-    document.addEventListener('focusin', function (e) {
-        keepFocusedFieldVisible(e.target);
-    });
-
-    if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', function () {
-            var active = document.activeElement;
-            if (active && active.matches && active.matches('input, select, textarea')) {
-                window.setTimeout(function () {
-                    keepFocusedFieldVisible(active);
-                }, 80);
-            }
-        });
-    }
-})();
-</script>
 
 <script>
 // ============================================================
@@ -933,6 +885,47 @@ function vMsg(el, msgEl, text, type) {
 var fNama = document.getElementById('fNama');
 var fHp   = document.getElementById('fHp');
 var fKep  = document.getElementById('fKep');
+
+// Keep the active text field visible when a touchscreen keyboard reduces the viewport.
+(function() {
+    var viewport = window.visualViewport;
+    var activeField = null;
+    var scrollTimer = null;
+
+    function keepFieldVisible() {
+        if (!activeField || !document.contains(activeField)) return;
+        var rect = activeField.getBoundingClientRect();
+        var top = viewport ? viewport.offsetTop : 0;
+        var bottom = top + (viewport ? viewport.height : window.innerHeight);
+        var margin = 16;
+
+        if (rect.bottom > bottom - margin) {
+            window.scrollBy(0, rect.bottom - bottom + margin);
+        } else if (rect.top < top + margin) {
+            window.scrollBy(0, rect.top - top - margin);
+        }
+    }
+
+    function scheduleVisibilityCheck() {
+        window.clearTimeout(scrollTimer);
+        scrollTimer = window.setTimeout(keepFieldVisible, 120);
+    }
+
+    document.addEventListener('focusin', function(e) {
+        var el = e.target;
+        if (el.matches('input[type="text"], input[type="tel"], textarea')) {
+            activeField = el;
+            scheduleVisibilityCheck();
+        }
+    });
+
+    document.addEventListener('focusout', function(e) {
+        if (e.target === activeField) activeField = null;
+    });
+
+    if (viewport) viewport.addEventListener('resize', scheduleVisibilityCheck);
+    window.addEventListener('resize', scheduleVisibilityCheck);
+})();
 
 fNama.addEventListener('input', function() {
     var v = fNama.value.trim(), m = document.getElementById('mNama');
