@@ -444,11 +444,27 @@
             .tab-btn { padding: 10px 14px; font-size: 12px; }
             .header-right { display: none; }
         }
-    </style>
+    
+/* On-screen keyboard for touchscreen terminals */
+#touchKeyboard { display:none; position:fixed; left:0; right:0; bottom:0; z-index:1000000; padding:8px max(8px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); background:rgba(18,30,54,.98); box-shadow:0 -6px 24px rgba(0,0,0,.3); color:white; user-select:none; -webkit-user-select:none; touch-action:manipulation; }
+#touchKeyboard.show { display:block; }
+#touchKeyboard .tk-head { display:flex; align-items:center; justify-content:space-between; max-width:760px; margin:0 auto 6px; font-size:12px; color:#dbeafe; }
+#touchKeyboard .tk-close { border:0; border-radius:8px; padding:6px 12px; background:#334155; color:white; font-size:13px; font-weight:600; }
+#touchKeyboard .tk-rows { max-width:760px; margin:0 auto; }
+#touchKeyboard .tk-row { display:flex; justify-content:center; gap:5px; margin:5px 0; }
+#touchKeyboard .tk-key { flex:1; min-width:0; height:44px; border:0; border-radius:7px; background:#f8fafc; color:#172554; font:600 18px 'Segoe UI',sans-serif; box-shadow:0 2px 0 #94a3b8; touch-action:manipulation; }
+#touchKeyboard .tk-key:active { background:#bfdbfe; transform:translateY(1px); box-shadow:0 1px 0 #64748b; }
+#touchKeyboard .tk-key.tk-action { flex:1.5; background:#cbd5e1; font-size:14px; }
+#touchKeyboard .tk-key.tk-primary { background:#2563eb; color:white; box-shadow:0 2px 0 #1e3a8a; }
+#touchKeyboard .tk-key.tk-space { flex:5; }
+@media (max-height:520px) { #touchKeyboard { padding-top:4px; } #touchKeyboard .tk-row { margin:3px 0; } #touchKeyboard .tk-key { height:36px; } }
+</style>
 
 <style id="browser-icon-fix">
 .compat-icon{display:inline-block;width:1.15em;height:1.15em;vertical-align:-0.2em;line-height:1;object-fit:contain;}
 .compat-icon img{display:block;width:100%;height:100%;object-fit:contain;}
+
+
 </style>
 </head>
 <body>
@@ -1652,6 +1668,126 @@ startRealtime();
         }
     }
     if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start); else start();
+})();
+</script>
+<div id="touchKeyboard" aria-label="Keyboard layar">
+    <div class="tk-head"><span id="tkTitle">Keyboard layar</span><button type="button" class="tk-close" data-tk="hide">Tutup ✕</button></div>
+    <div class="tk-rows" id="tkRows"></div>
+</div>
+<script>
+(function() {
+    var panel = document.getElementById('touchKeyboard');
+    var rowsEl = document.getElementById('tkRows');
+    var title = document.getElementById('tkTitle');
+    var active = null;
+    var shifted = false;
+    var numeric = false;
+    var textRows = ['qwertyuiop', 'asdfghjkl'];
+
+    function makeKey(row, label, value, action, extra) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'tk-key' + (action ? ' tk-action' : '') + (extra ? ' ' + extra : '');
+        button.textContent = label;
+        button.setAttribute('data-tk', action || 'char');
+        if (value) button.setAttribute('data-value', value);
+        row.appendChild(button);
+    }
+    function addRow(labels) {
+        var row = document.createElement('div'); row.className = 'tk-row';
+        labels.forEach(function(label) {
+            if (label === 'shift') makeKey(row, shifted ? '⇧' : '⬆', '', 'shift', 'tk-action');
+            else if (label === 'back') makeKey(row, '⌫', '', 'back', 'tk-action');
+            else if (label === 'mode') makeKey(row, numeric ? 'ABC' : '?123', '', 'mode', 'tk-action');
+            else if (label === 'space') makeKey(row, 'Spasi', ' ', 'char', 'tk-space');
+            else if (label === 'done') makeKey(row, active && active.tagName === 'TEXTAREA' ? 'Selesai' : 'Berikutnya ↵', '', 'done', 'tk-primary');
+            else makeKey(row, shifted && !numeric ? label.toUpperCase() : label, shifted && !numeric ? label.toUpperCase() : label, null, '');
+        });
+        rowsEl.appendChild(row);
+    }
+    function draw() {
+        rowsEl.textContent = '';
+        if (active && active.type === 'tel') {
+            ['123','456','789','0'].forEach(function(r) { addRow(r.split('')); });
+            addRow(['back','done']); return;
+        }
+        if (numeric) {
+            ['1234567890','-/:;()$&@','.,?!\''].forEach(function(r) { addRow(r.split('')); });
+            addRow(['mode','space','back','done']); return;
+        }
+        textRows.forEach(function(r) { addRow(r.split('')); });
+        addRow(['shift'].concat('zxcvbnm'.split(''), ['back']));
+        addRow(['mode','space','done']);
+    }
+    function scrollActiveIntoView() {
+        if (!active) return;
+        window.setTimeout(function() {
+            var rect = active.getBoundingClientRect(), view = window.visualViewport;
+            var top = view ? view.offsetTop : 0;
+            var bottom = top + (view ? view.height : window.innerHeight) - panel.getBoundingClientRect().height - 10;
+            if (rect.bottom > bottom) window.scrollBy(0, rect.bottom - bottom);
+            else if (rect.top < top + 10) window.scrollBy(0, rect.top - top - 10);
+        }, 100);
+    }
+    function show(el) {
+        active = el; numeric = el.type === 'tel'; shifted = false;
+        title.textContent = el.id === 'searchInp' ? 'Cari' : (numeric ? 'Masukkan nomor HP' : 'Masukkan teks');
+        draw(); panel.classList.add('show'); scrollActiveIntoView();
+    }
+    function hide() { var field = active; panel.classList.remove('show'); active = null; if (field) field.blur(); }
+    function emitInput() { active.dispatchEvent(new Event('input', {bubbles:true})); }
+    function insertText(value) {
+        if (!active) return;
+        var start = active.selectionStart == null ? active.value.length : active.selectionStart;
+        var end = active.selectionEnd == null ? start : active.selectionEnd;
+        var next = active.value.substring(0,start) + value + active.value.substring(end);
+        if (active.maxLength > -1) next = next.substring(0,active.maxLength);
+        active.value = next;
+        var caret = Math.min(start + value.length,next.length);
+        if (active.setSelectionRange) active.setSelectionRange(caret,caret);
+        emitInput();
+    }
+    function backspace() {
+        if (!active) return;
+        var start = active.selectionStart == null ? active.value.length : active.selectionStart;
+        var end = active.selectionEnd == null ? start : active.selectionEnd;
+        if (start === end && start > 0) start--;
+        active.value = active.value.substring(0,start) + active.value.substring(end);
+        if (active.setSelectionRange) active.setSelectionRange(start,start);
+        emitInput();
+    }
+    function nextField() {
+        var fields = Array.prototype.slice.call(document.querySelectorAll('input[type="text"],input[type="tel"],textarea')).filter(function(el) { return !el.disabled && el.offsetWidth > 0 && el.offsetHeight > 0; });
+        var index = fields.indexOf(active);
+        if (index >= 0 && index + 1 < fields.length) { var next = fields[index+1]; next.focus(); show(next); }
+        else hide();
+    }
+    panel.addEventListener('pointerdown', function(e) { if (e.target.closest('button')) e.preventDefault(); });
+    panel.addEventListener('click', function(e) {
+        var key = e.target.closest('button[data-tk]'); if (!key) return;
+        var action = key.getAttribute('data-tk');
+        if (action === 'hide') { hide(); return; }
+        if (action === 'char') { insertText(key.getAttribute('data-value') || ''); if (shifted) { shifted = false; draw(); } }
+        else if (action === 'back') backspace();
+        else if (action === 'shift') { shifted = !shifted; draw(); }
+        else if (action === 'mode') { numeric = !numeric; shifted = false; draw(); }
+        else if (action === 'done') { nextField(); return; }
+        if (active) active.focus();
+    });
+    document.addEventListener('focusin', function(e) {
+        var el=e.target;
+        if (el.matches('input[type="text"],input[type="tel"],textarea') && !el.readOnly && !el.disabled) show(el);
+    });
+    document.addEventListener('focusout', function(e) {
+        if (e.target === active) window.setTimeout(function() {
+            if (panel.contains(document.activeElement)) return;
+            if (document.activeElement && document.activeElement.matches('input[type="text"],input[type="tel"],textarea')) return;
+            hide();
+        },80);
+    });
+    document.addEventListener('pointerdown', function(e) {
+        if (panel.classList.contains('show') && !panel.contains(e.target) && !e.target.matches('input[type="text"],input[type="tel"],textarea')) hide();
+    });
 })();
 </script>
 </body>
